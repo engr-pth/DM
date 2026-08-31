@@ -25,7 +25,7 @@ st.sidebar.divider()
 st.sidebar.markdown(f"**Project:** {project_name}")
 st.sidebar.markdown(f"**Location:** {location}")
 
-# Items List
+# Full Comprehensive Work Items List
 items_list = [
     "1. Site Cleaning Work (Sqft)",
     "2. Staking Works For Preparation of Foundation (Sqft)",
@@ -44,20 +44,27 @@ items_list = [
     "8. (v) Staircase Concrete & Rebar Work",
     "9. Backfilling Work (Cuft)",
     "10. Roofing Structure Work (Sqft / Rft)",
+    "11. Anti-Rust Painting Work (Sqft)",
+    "12. 0.4mm thk; Amcan Roofing Sheet Work (Sqft)",
+    "13. Flashing Covering Work (Rft / Nos)",
+    "14. 8\"x8\" Gutter Work (Rft / Nos)",
+    "15. Eave Board Work (Rft / Nos)",
+    "16. Bamboo Scaffolding Work (Sqft)",
 ]
 
 # Base Empty Template
 default_empty_df = pd.DataFrame(
     [
         {
-            "Section / Location": "",
             "Particular": "",
             "Nos (x)": 1,
             "Member (x)": 1,
             "Multiplier": 1,
             "L / Length (ft)": 0.0,
+            "B / Width (ft)": 0.0,
+            "H / Height (ft)": 0.0,
             "Deduction": 0.0,
-            "Direct Total (ft)": 0.0,
+            "Direct Total": 0.0,
         }
     ]
 )
@@ -65,147 +72,221 @@ default_empty_df = pd.DataFrame(
 if "data_store" not in st.session_state:
     st.session_state.data_store = {}
 
-# Set Up Initial Data for Roofing Structure
-if "10. Roofing Structure Work (Sqft / Rft)" not in st.session_state.data_store:
-    st.session_state.data_store["10. Roofing Structure Work (Sqft / Rft)"] = (
+# Set Up Initial Sample Data for Items 11 to 16
+if "11. Anti-Rust Painting Work (Sqft)" not in st.session_state.data_store:
+    st.session_state.data_store["11. Anti-Rust Painting Work (Sqft)"] = (
         pd.DataFrame(
             [
-                # H Beam 6"x6"
                 {
-                    "Section / Location": "Shrine & Car Garage",
-                    "Particular": 'H Beam 6"x6" (G.L-2\')',
-                    "Nos (x)": 1,
-                    "Member (x)": 1,
-                    "Multiplier": 2,
-                    "L / Length (ft)": 3.50,
-                    "Deduction": 0.0,
-                    "Direct Total (ft)": 0.0,
-                },
-                {
-                    "Section / Location": "Shrine & Car Garage",
-                    "Particular": 'H Beam 6"x6" (G.L-4)',
-                    "Nos (x)": 1,
-                    "Member (x)": 1,
-                    "Multiplier": 2,
-                    "L / Length (ft)": 10.00,
-                    "Deduction": 0.0,
-                    "Direct Total (ft)": 0.0,
-                },
-                {
-                    "Section / Location": "Living Room",
-                    "Particular": 'H Beam 6"x6" (G.L-2\')',
-                    "Nos (x)": 1,
-                    "Member (x)": 1,
-                    "Multiplier": 2,
-                    "L / Length (ft)": 4.58,
-                    "Deduction": 0.0,
-                    "Direct Total (ft)": 0.0,
-                },
-                # I Beam 6"x3"
-                {
-                    "Section / Location": "Shrine & Car Garage",
-                    "Particular": 'I Beam 6"x3" (G.L-2\')',
+                    "Particular": '6"x6"x(7mmx10mm) H Beam (6M)',
                     "Nos (x)": 1,
                     "Member (x)": 1,
                     "Multiplier": 1,
-                    "L / Length (ft)": 25.50,
+                    "L / Length (ft)": 36.16,
+                    "B / Width (ft)": 3.00,
+                    "H / Height (ft)": 0.0,
                     "Deduction": 0.0,
-                    "Direct Total (ft)": 0.0,
+                    "Direct Total": 108.48,
                 },
                 {
-                    "Section / Location": "Shrine & Car Garage",
-                    "Particular": 'I Beam 6"x3" (G.L-4)',
+                    "Particular": '6"x3"x4mm thk; I Beam (6M)',
                     "Nos (x)": 1,
                     "Member (x)": 1,
                     "Multiplier": 1,
-                    "L / Length (ft)": 7.00,
+                    "L / Length (ft)": 32.50,
+                    "B / Width (ft)": 2.00,
+                    "H / Height (ft)": 0.0,
                     "Deduction": 0.0,
-                    "Direct Total (ft)": 0.0,
+                    "Direct Total": 65.00,
                 },
-                # Prop Column 5"x2"x2.3mm
                 {
-                    "Section / Location": "Main Building Prop Column",
-                    "Particular": 'Hollow 5"x2"x2.3mm (G.L-E)',
+                    "Particular": '5"x2"x2.3mm thk; Hollow (6M)',
                     "Nos (x)": 1,
                     "Member (x)": 1,
                     "Multiplier": 1,
-                    "L / Length (ft)": 6.00,
+                    "L / Length (ft)": 532.40,
+                    "B / Width (ft)": 1.50,
+                    "H / Height (ft)": 0.0,
                     "Deduction": 0.0,
-                    "Direct Total (ft)": 0.0,
+                    "Direct Total": 799.66,
                 },
                 {
-                    "Section / Location": "Main Building Prop Column",
-                    "Particular": 'Hollow 5"x2"x2.3mm (Bet G.L-1 & 2, 2\')',
-                    "Nos (x)": 4,
+                    "Particular": '2"x2"x1.3mm thk; Hollow',
+                    "Nos (x)": 1,
                     "Member (x)": 1,
                     "Multiplier": 1,
-                    "L / Length (ft)": 5.00,
+                    "L / Length (ft)": 1358.00,
+                    "B / Width (ft)": 0.67,
+                    "H / Height (ft)": 0.0,
                     "Deduction": 0.0,
-                    "Direct Total (ft)": 0.0,
-                },
-                # Rafter
-                {
-                    "Section / Location": "Car Garage Rafter",
-                    "Particular": 'Rafter Hollow 5"x2"x2.3mm',
-                    "Nos (x)": 1,
-                    "Member (x)": 1,
-                    "Multiplier": 3,
-                    "L / Length (ft)": 19.67,
-                    "Deduction": 0.0,
-                    "Direct Total (ft)": 0.0,
+                    "Direct Total": 907.14,
                 },
                 {
-                    "Section / Location": "Main Building Rafter",
-                    "Particular": 'Rafter Hollow 5"x2"x2.3mm (G.L-A~C)',
-                    "Nos (x)": 1,
-                    "Member (x)": 1,
-                    "Multiplier": 4,
-                    "L / Length (ft)": 33.00,
-                    "Deduction": 0.0,
-                    "Direct Total (ft)": 0.0,
-                },
-                # Purlin
-                {
-                    "Section / Location": "Car Garage Purlin",
-                    "Particular": 'Purlin 2"x2"x1.3mm Hollow @ 2ft c/c',
-                    "Nos (x)": 15,
+                    "Particular": "Eave Board Frame",
+                    "Nos (x)": 35,
                     "Member (x)": 1,
                     "Multiplier": 1,
-                    "L / Length (ft)": 8.50,
+                    "L / Length (ft)": 20.00,
+                    "B / Width (ft)": 0.33,
+                    "H / Height (ft)": 0.0,
                     "Deduction": 0.0,
-                    "Direct Total (ft)": 0.0,
-                },
-                {
-                    "Section / Location": "Main Building Vertical Purlin",
-                    "Particular": 'Purlin 2"x2"x1.3mm Hollow',
-                    "Nos (x)": 1,
-                    "Member (x)": 1,
-                    "Multiplier": 14,
-                    "L / Length (ft)": 37.00,
-                    "Deduction": 0.0,
-                    "Direct Total (ft)": 0.0,
+                    "Direct Total": 233.33,
                 },
             ]
         )
     )
 
-# Generic Data Initialization for other items
+if (
+    "12. 0.4mm thk; Amcan Roofing Sheet Work (Sqft)"
+    not in st.session_state.data_store
+):
+    st.session_state.data_store[
+        "12. 0.4mm thk; Amcan Roofing Sheet Work (Sqft)"
+    ] = pd.DataFrame(
+        [
+            {
+                "Particular": "Car Garage (Rafter 1)",
+                "Nos (x)": 1,
+                "Member (x)": 1,
+                "Multiplier": 1,
+                "L / Length (ft)": 9.92,
+                "B / Width (ft)": 9.00,
+                "H / Height (ft)": 0.0,
+                "Deduction": 0.0,
+                "Direct Total": 89.28,
+            },
+            {
+                "Particular": "Car Garage (Rafter 2)",
+                "Nos (x)": 1,
+                "Member (x)": 1,
+                "Multiplier": 1,
+                "L / Length (ft)": 19.67,
+                "B / Width (ft)": 9.00,
+                "H / Height (ft)": 0.0,
+                "Deduction": 0.0,
+                "Direct Total": 177.03,
+            },
+            {
+                "Particular": "Living Room (Section 1)",
+                "Nos (x)": 1,
+                "Member (x)": 1,
+                "Multiplier": 1,
+                "L / Length (ft)": 12.33,
+                "B / Width (ft)": 19.50,
+                "H / Height (ft)": 0.0,
+                "Deduction": 0.0,
+                "Direct Total": 240.44,
+            },
+            {
+                "Particular": "Living Room (Section 2)",
+                "Nos (x)": 1,
+                "Member (x)": 1,
+                "Multiplier": 1,
+                "L / Length (ft)": 17.60,
+                "B / Width (ft)": 19.50,
+                "H / Height (ft)": 0.0,
+                "Deduction": 0.0,
+                "Direct Total": 343.20,
+            },
+            {
+                "Particular": "Main Building Roof",
+                "Nos (x)": 1,
+                "Member (x)": 1,
+                "Multiplier": 1,
+                "L / Length (ft)": 16.50,
+                "B / Width (ft)": 37.00,
+                "H / Height (ft)": 0.0,
+                "Deduction": 0.0,
+                "Direct Total": 610.50,
+            },
+        ]
+    )
+
+if (
+    "16. Bamboo Scaffolding Work (Sqft)"
+    not in st.session_state.data_store
+):
+    st.session_state.data_store["16. Bamboo Scaffolding Work (Sqft)"] = (
+        pd.DataFrame(
+            [
+                {
+                    "Particular": "Front Side",
+                    "Nos (x)": 1,
+                    "Member (x)": 1,
+                    "Multiplier": 1,
+                    "L / Length (ft)": 45.00,
+                    "B / Width (ft)": 29.50,
+                    "H / Height (ft)": 0.0,
+                    "Deduction": 0.0,
+                    "Direct Total": 1327.50,
+                },
+                {
+                    "Particular": "Back Side",
+                    "Nos (x)": 1,
+                    "Member (x)": 1,
+                    "Multiplier": 1,
+                    "L / Length (ft)": 45.00,
+                    "B / Width (ft)": 29.50,
+                    "H / Height (ft)": 0.0,
+                    "Deduction": 0.0,
+                    "Direct Total": 1327.50,
+                },
+                {
+                    "Particular": "Right Side",
+                    "Nos (x)": 1,
+                    "Member (x)": 1,
+                    "Multiplier": 1,
+                    "L / Length (ft)": 60.50,
+                    "B / Width (ft)": 29.50,
+                    "H / Height (ft)": 0.0,
+                    "Deduction": 0.0,
+                    "Direct Total": 1784.75,
+                },
+                {
+                    "Particular": "Left Side",
+                    "Nos (x)": 1,
+                    "Member (x)": 1,
+                    "Multiplier": 1,
+                    "L / Length (ft)": 60.50,
+                    "B / Width (ft)": 27.50,
+                    "H / Height (ft)": 0.0,
+                    "Deduction": 0.0,
+                    "Direct Total": 1663.75,
+                },
+            ]
+        )
+    )
+
+# Generic Data Initialization
 for item in items_list:
     if item not in st.session_state.data_store:
         st.session_state.data_store[item] = default_empty_df.copy()
 
 
-def calculate_roofing(row):
-    if "Direct Total (ft)" in row and row["Direct Total (ft)"] > 0:
-        return round(float(row["Direct Total (ft)"]), 2)
+# Volume / Area / Length Calculation Engine
+def calculate_item_content(row, item_name):
+    if "Direct Total" in row and row["Direct Total"] > 0:
+        return round(float(row["Direct Total"]), 2)
+
     no = (
         row.get("Nos (x)", 1)
         * row.get("Member (x)", 1)
         * row.get("Multiplier", 1)
     )
-    length = row.get("L / Length (ft)", 0.0)
+    l_val = row.get("L / Length (ft)", 0.0)
+    w_val = row.get("B / Width (ft)", 0.0)
+    h_val = row.get("H / Height (ft)", 0.0)
     deduction = row.get("Deduction", 0.0)
-    return round((no * length) - deduction, 2)
+
+    if "(Sqft)" in item_name:
+        b_val = w_val if w_val > 0 else (h_val if h_val > 0 else 1.0)
+        total = (no * l_val * b_val) - deduction
+    elif "(Rft" in item_name or "(ft)" in item_name:
+        total = (no * l_val) - deduction
+    else:
+        total = (no * l_val * w_val * h_val) - deduction
+
+    return round(total, 2)
 
 
 view_type = st.radio(
@@ -221,44 +302,31 @@ st.divider()
 def render_item_editor(item, key_prefix):
     df_input = st.session_state.data_store.get(item, default_empty_df.copy())
 
-    if "Roofing Structure Work" in item:
-        edited_df = st.data_editor(
-            df_input,
-            num_rows="dynamic",
-            use_container_width=True,
-            key=f"{key_prefix}_{item}",
+    edited_df = st.data_editor(
+        df_input,
+        num_rows="dynamic",
+        use_container_width=True,
+        key=f"{key_prefix}_{item}",
+    )
+
+    if not edited_df.empty:
+        edited_df["Total Content"] = edited_df.apply(
+            lambda r: calculate_item_content(r, item), axis=1
         )
-        if not edited_df.empty:
-            edited_df["Content (Rft)"] = edited_df.apply(
-                calculate_roofing, axis=1
-            )
-            st.session_state.data_store[item] = edited_df
+        st.session_state.data_store[item] = edited_df
 
-            # Calculate Beam / Structural Summaries
-            total_rft = edited_df["Content (Rft)"].sum()
-            total_6m_nos = math.ceil(
-                total_rft / 19.685
-            )  # Convert Rft to 6M standard length numbers
+        grand_total = edited_df["Total Content"].sum()
 
-            c1, c2 = st.columns(2)
-            c1.metric("📐 Total Length (စုစုပေါင်းအလျား)", f"{total_rft:,.2f} Rft")
-            c2.metric("📦 Estimated 6M Pipe/Beam Count", f"{total_6m_nos:,} Nos")
+        if "(Sqft)" in item:
+            st.caption(f"**{item} Total Area:** `{grand_total:,.2f} Sqft`")
+        elif "(Cuft)" in item:
+            st.caption(f"**{item} Total Volume:** `{grand_total:,.2f} Cuft`")
+        else:
+            st.caption(f"**{item} Total Quantity:** `{grand_total:,.2f}`")
 
-            temp_df = edited_df.copy()
-            temp_df.insert(0, "Item Description", item)
-            summary_data.append(temp_df)
-    else:
-        edited_df = st.data_editor(
-            df_input,
-            num_rows="dynamic",
-            use_container_width=True,
-            key=f"{key_prefix}_{item}",
-        )
-        if not edited_df.empty:
-            st.session_state.data_store[item] = edited_df
-            temp_df = edited_df.copy()
-            temp_df.insert(0, "Item Description", item)
-            summary_data.append(temp_df)
+        temp_df = edited_df.copy()
+        temp_df.insert(0, "Item Description", item)
+        summary_data.append(temp_df)
 
 
 if view_type == "ကဏ္ဍအလိုက် ချုံ့/ချဲ့ စာရင်း (Expander)":
