@@ -24,7 +24,7 @@ st.sidebar.divider()
 st.sidebar.markdown(f"**Project:** {project_name}")
 st.sidebar.markdown(f"**Location:** {location}")
 
-# Full Structure Items List (Including Slab Work from Book1_3.xlsx)
+# Full Structure Items List (Including Staircase Work from Book1_4.xlsx)
 items_list = [
     "1. Site Cleaning Work (Sqft)",
     "2. Staking Works For Preparation of Foundation (Sqft)",
@@ -51,6 +51,10 @@ items_list = [
     "8. (iv) (b) Slab Formwork (Sqft)",
     "8. (iv) (c) Slab Rebar Work (10mmØ) (ft)",
     "8. (iv) (c) Slab Rebar Work (12mmØ) (ft)",
+    "8. (v) (a) Staircase (1:2:4) Reinforced Concrete Work (Cuft)",
+    "8. (v) (b) Staircase Formwork (Sqft)",
+    "8. (v) (c) Staircase Rebar Work (10mmØ) (ft)",
+    "8. (v) (c) Staircase Rebar Work (12mmØ) (ft)",
 ]
 
 # Base Empty Template Structure
@@ -73,93 +77,133 @@ default_empty_df = pd.DataFrame(
 if "data_store" not in st.session_state:
     st.session_state.data_store = {}
 
-# Populate initial templates with sample values from Book1_3.xlsx
+# Populate initial templates with sample values from Book1_4.xlsx
 for item in items_list:
     if item not in st.session_state.data_store:
-        if "Slab (1:2:4) Reinforced Concrete Work" in item:
+        if "Staircase (1:2:4) Reinforced Concrete Work" in item:
             st.session_state.data_store[item] = pd.DataFrame(
                 [
                     {
-                        "Particular": "1st Floor Slab - S1 (G.L-1 to 2)",
+                        "Particular": "Waist Slab-1 (Ground to 1st Floor)",
                         "Nos (x)": 1,
                         "Member (x)": 1,
                         "Multiplier": 1,
-                        "L / Length (ft)": 13.00,
-                        "B (ft)": 10.00,
+                        "L / Length (ft)": 10.68,
+                        "B (ft)": 4.00,
                         "H (ft)": 0.417,
                         "Deduction": 0.0,
                     },
                     {
-                        "Particular": "Landing Slab - LS",
+                        "Particular": "Flight-1 Steps (10 Steps)",
+                        "Nos (x)": 1,
+                        "Member (x)": 10,
+                        "Multiplier": 1,
+                        "L / Length (ft)": 4.00,
+                        "B (ft)": 0.917,
+                        "H (ft)": 0.261,
+                        "Deduction": 0.0,
+                    },
+                    {
+                        "Particular": "Waist Slab-2 (Ground to 1st Floor)",
                         "Nos (x)": 1,
                         "Member (x)": 1,
                         "Multiplier": 1,
-                        "L / Length (ft)": 7.00,
-                        "B (ft)": 4.57,
+                        "L / Length (ft)": 10.68,
+                        "B (ft)": 4.00,
                         "H (ft)": 0.417,
                         "Deduction": 0.0,
                     },
-                ]
-            )
-        elif "Slab Formwork" in item:
-            st.session_state.data_store[item] = pd.DataFrame(
-                [
                     {
-                        "Particular": "1st Floor Slab Bottom Formwork",
+                        "Particular": "Flight-2 Steps (10 Steps)",
                         "Nos (x)": 1,
-                        "Member (x)": 1,
+                        "Member (x)": 10,
                         "Multiplier": 1,
-                        "L / Length (ft)": 13.00,
-                        "B (ft)": 10.00,
-                        "H (ft)": 0.0,
-                        "Deduction": 0.0,
-                    },
-                    {
-                        "Particular": "Landing Slab Bottom Formwork",
-                        "Nos (x)": 1,
-                        "Member (x)": 1,
-                        "Multiplier": 1,
-                        "L / Length (ft)": 7.00,
-                        "B (ft)": 6.00,
-                        "H (ft)": 0.0,
+                        "L / Length (ft)": 4.00,
+                        "B (ft)": 0.917,
+                        "H (ft)": 0.261,
                         "Deduction": 0.0,
                     },
                 ]
             )
-        elif "Slab Rebar Work (10mmØ)" in item:
+        elif "Staircase Formwork" in item:
             st.session_state.data_store[item] = pd.DataFrame(
                 [
                     {
-                        "Particular": "1st Floor Slab S1 - Main Bar (10mmØ @ 6\"c/c)",
-                        "Nos (x)": 23,
+                        "Particular": "Waist Slab Bottom Formwork (Waist 1 & 2)",
+                        "Nos (x)": 2,
                         "Member (x)": 1,
                         "Multiplier": 1,
-                        "L / Length (ft)": 13.39,
+                        "L / Length (ft)": 10.68,
+                        "B (ft)": 4.00,
+                        "H (ft)": 0.0,
+                        "Deduction": 0.0,
+                    },
+                    {
+                        "Particular": "Flight Riser Formwork (20 Risers)",
+                        "Nos (x)": 20,
+                        "Member (x)": 1,
+                        "Multiplier": 1,
+                        "L / Length (ft)": 4.00,
+                        "B (ft)": 0.0,
+                        "H (ft)": 0.523,
+                        "Deduction": 0.0,
+                    },
+                    {
+                        "Particular": "Staircase Side Formwork",
+                        "Nos (x)": 4,
+                        "Member (x)": 1,
+                        "Multiplier": 1,
+                        "L / Length (ft)": 10.68,
+                        "B (ft)": 0.0,
+                        "H (ft)": 1.417,
+                        "Deduction": 0.0,
+                    },
+                ]
+            )
+        elif "Staircase Rebar Work (10mmØ)" in item:
+            st.session_state.data_store[item] = pd.DataFrame(
+                [
+                    {
+                        "Particular": "Distribution Bar (10mmØ @ 6\"c/c)",
+                        "Nos (x)": 30,
+                        "Member (x)": 1,
+                        "Multiplier": 1,
+                        "L / Length (ft)": 4.75,
                         "B (ft)": 0.0,
                         "H (ft)": 0.0,
                         "Deduction": 0.0,
                     },
                     {
-                        "Particular": "Landing Slab - Distribution Bar (10mmØ @ 6\"c/c)",
-                        "Nos (x)": 15,
+                        "Particular": "Additional Bar (10mmØ @ 6\"c/c)",
+                        "Nos (x)": 16,
                         "Member (x)": 1,
                         "Multiplier": 1,
-                        "L / Length (ft)": 5.25,
+                        "L / Length (ft)": 6.00,
                         "B (ft)": 0.0,
                         "H (ft)": 0.0,
                         "Deduction": 0.0,
                     },
                 ]
             )
-        elif "Slab Rebar Work (12mmØ)" in item:
+        elif "Staircase Rebar Work (12mmØ)" in item:
             st.session_state.data_store[item] = pd.DataFrame(
                 [
                     {
-                        "Particular": "Landing Slab - Main Bar (12mmØ @ 6\"c/c)",
-                        "Nos (x)": 10,
+                        "Particular": "Main Bar Bottom Layer (12mmØ @ 6\"c/c)",
+                        "Nos (x)": 8,
                         "Member (x)": 1,
                         "Multiplier": 1,
-                        "L / Length (ft)": 7.786,
+                        "L / Length (ft)": 14.18,
+                        "B (ft)": 0.0,
+                        "H (ft)": 0.0,
+                        "Deduction": 0.0,
+                    },
+                    {
+                        "Particular": "Main Bar Top Layer (12mmØ @ 6\"c/c)",
+                        "Nos (x)": 8,
+                        "Member (x)": 1,
+                        "Multiplier": 1,
+                        "L / Length (ft)": 10.62,
                         "B (ft)": 0.0,
                         "H (ft)": 0.0,
                         "Deduction": 0.0,
@@ -170,7 +214,7 @@ for item in items_list:
             st.session_state.data_store[item] = default_empty_df.copy()
 
 
-# Smart Content Calculation
+# Calculation Logic
 def calculate_content(row, item_type):
     no = (
         row.get("Nos (x)", 1)
