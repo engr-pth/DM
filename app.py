@@ -16,9 +16,9 @@ st.write(
 # Sidebar - Project Details
 st.sidebar.header("📌 Project Details")
 project_name = st.sidebar.text_input(
-    "Project Name", "Two Storeyed RCC Building"
+    "Project Name", "?? Storeyed RCC Building"
 )
-location = st.sidebar.text_input("Location", "Pyin Oo Lwin")
+location = st.sidebar.text_input("Location", "City/Township")
 description = st.sidebar.text_input("Description", "Sub & Super Structure Work")
 
 st.sidebar.divider()
