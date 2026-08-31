@@ -36,7 +36,7 @@ items_list = [
     "8. Plinth Beam Concrete Work (Cuft)",
 ]
 
-# Helper template dataframe
+# Base Empty Template Structure
 default_empty_df = pd.DataFrame(
     [
         {
@@ -50,11 +50,11 @@ default_empty_df = pd.DataFrame(
     ]
 )
 
-# Initialize Session State Data Store properly
+# Initialize Session State Data Store
 if "data_store" not in st.session_state:
     st.session_state.data_store = {}
 
-# Ensure every item exists in data_store to avoid KeyError
+# Populate initial templates
 for item in items_list:
     if item not in st.session_state.data_store:
         if "3. Earthwork Excavation" in item:
@@ -76,14 +76,6 @@ for item in items_list:
                         "H (ft)": 5.0,
                         "Deduction": 0.0,
                     },
-                    {
-                        "Particular": "F3 (5'-0\"x5'-0\")",
-                        "No": 9,
-                        "L (ft)": 6.0,
-                        "B (ft)": 6.0,
-                        "H (ft)": 5.0,
-                        "Deduction": 0.0,
-                    },
                 ]
             )
         elif "4. Hardcore With Sand" in item:
@@ -97,25 +89,20 @@ for item in items_list:
                         "H (ft)": 0.5,
                         "Deduction": 0.0,
                     },
-                    {
-                        "Particular": "F2 (6'-0\"x6'-0\")",
-                        "No": 5,
-                        "L (ft)": 6.0,
-                        "B (ft)": 6.0,
-                        "H (ft)": 0.5,
-                        "Deduction": 0.0,
-                    },
                 ]
             )
         else:
             st.session_state.data_store[item] = default_empty_df.copy()
 
 
-def calculate_content(row):
-    h_val = row["H (ft)"] if row["H (ft)"] > 0 else 1.0
-    total = (
-        (row["No"] * row["L (ft)"] * row["B (ft)"] * h_val) - row["Deduction"]
-    )
+# Smart Content Calculation Function
+def calculate_content(row, is_sqft=False):
+    if is_sqft:
+        total = (row["No"] * row["L (ft)"] * row["B (ft)"]) - row["Deduction"]
+    else:
+        total = (
+            row["No"] * row["L (ft)"] * row["B (ft)"] * row["H (ft)"]
+        ) - row["Deduction"]
     return round(total, 2)
 
 
@@ -129,105 +116,71 @@ view_type = st.radio(
 summary_data = []
 st.divider()
 
+
+# Helper function to render data editor dynamically based on unit type
+def render_item_editor(item, key_prefix):
+    is_sqft = "Sqft" in item
+    df_input = st.session_state.data_store.get(item, default_empty_df.copy())
+
+    # Dynamic Column Config
+    col_config = {
+        "No": st.column_config.NumberColumn(min_value=1, step=1, default=1),
+        "L (ft)": st.column_config.NumberColumn(min_value=0.0, format="%.2f"),
+        "B (ft)": st.column_config.NumberColumn(min_value=0.0, format="%.2f"),
+        "Deduction": st.column_config.NumberColumn(
+            min_value=0.0, format="%.2f"
+        ),
+    }
+
+    # Hide or Disable H(ft) for Sqft items
+    if is_sqft:
+        disabled_cols = ["H (ft)"]
+        col_config["H (ft)"] = st.column_config.NumberColumn(
+            "H (ft)", help="Sqft ဖြစ်သဖြင့် ဖြည့်ရန်မလိုပါ", disabled=True
+        )
+    else:
+        disabled_cols = []
+        col_config["H (ft)"] = st.column_config.NumberColumn(
+            "H (ft)", min_value=0.0, format="%.2f"
+        )
+
+    edited_df = st.data_editor(
+        df_input,
+        num_rows="dynamic",
+        use_container_width=True,
+        key=f"{key_prefix}_{item}",
+        column_config=col_config,
+        disabled=disabled_cols,
+    )
+
+    if not edited_df.empty:
+        edited_df["Content"] = edited_df.apply(
+            lambda r: calculate_content(r, is_sqft=is_sqft), axis=1
+        )
+        st.session_state.data_store[item] = edited_df
+
+        total_qty = edited_df["Content"].sum()
+        unit = "Sqft" if is_sqft else "Cuft"
+        st.caption(f"**{item} - Total:** `{total_qty:,.2f} {unit}`")
+
+        temp_df = edited_df.copy()
+        if is_sqft:
+            temp_df["H (ft)"] = "-"  # Clean display for summary
+        temp_df.insert(0, "Item Description", item)
+        summary_data.append(temp_df)
+
+
+# Render Views
 if view_type == "ကဏ္ဍအလိုက် ချုံ့/ချဲ့ စာရင်း (Expander)":
     for item in items_list:
         with st.expander(f"📋 {item}", expanded=True):
-            # Safe Retrieval using .get() to prevent KeyError
-            df_input = st.session_state.data_store.get(
-                item, default_empty_df.copy()
-            )
-
-            edited_df = st.data_editor(
-                df_input,
-                num_rows="dynamic",
-                use_container_width=True,
-                key=f"editor_{item}",
-                column_config={
-                    "No": st.column_config.NumberColumn(
-                        min_value=1, step=1, default=1
-                    ),
-                    "L (ft)": st.column_config.NumberColumn(
-                        min_value=0.0, format="%.2f"
-                    ),
-                    "B (ft)": st.column_config.NumberColumn(
-                        min_value=0.0, format="%.2f"
-                    ),
-                    "H (ft)": st.column_config.NumberColumn(
-                        min_value=0.0,
-                        format="%.2f",
-                        help="Sqft အတွက်ဖြစ်ပါက 1 သို့မဟုတ် 0 ထားပါ",
-                    ),
-                    "Deduction": st.column_config.NumberColumn(
-                        min_value=0.0, format="%.2f"
-                    ),
-                },
-            )
-
-            if not edited_df.empty:
-                edited_df["Content"] = edited_df.apply(
-                    calculate_content, axis=1
-                )
-                st.session_state.data_store[item] = edited_df
-
-                total_qty = edited_df["Content"].sum()
-                unit = "Sqft" if "Sqft" in item else "Cuft"
-                st.caption(
-                    f"**{item} - Total:** `{total_qty:,.2f} {unit}`"
-                )
-
-                temp_df = edited_df.copy()
-                temp_df.insert(0, "Item Description", item)
-                summary_data.append(temp_df)
-
+            render_item_editor(item, "expander")
 else:
     tabs = st.tabs(items_list)
     for idx, item in enumerate(items_list):
         with tabs[idx]:
             st.subheader(item)
-            # Safe Retrieval using .get() to prevent KeyError
-            df_input = st.session_state.data_store.get(
-                item, default_empty_df.copy()
-            )
-
-            edited_df = st.data_editor(
-                df_input,
-                num_rows="dynamic",
-                use_container_width=True,
-                key=f"tab_editor_{item}",
-                column_config={
-                    "No": st.column_config.NumberColumn(
-                        min_value=1, step=1, default=1
-                    ),
-                    "L (ft)": st.column_config.NumberColumn(
-                        min_value=0.0, format="%.2f"
-                    ),
-                    "B (ft)": st.column_config.NumberColumn(
-                        min_value=0.0, format="%.2f"
-                    ),
-                    "H (ft)": st.column_config.NumberColumn(
-                        min_value=0.0, format="%.2f"
-                    ),
-                    "Deduction": st.column_config.NumberColumn(
-                        min_value=0.0, format="%.2f"
-                    ),
-                },
-            )
-
-            if not edited_df.empty:
-                edited_df["Content"] = edited_df.apply(
-                    calculate_content, axis=1
-                )
-                st.session_state.data_store[item] = edited_df
-
-                total_qty = edited_df["Content"].sum()
-                unit = "Sqft" if "Sqft" in item else "Cuft"
-                st.caption(
-                    f"**{item} - Total:** `{total_qty:,.2f} {unit}`"
-                )
-
-                temp_df = edited_df.copy()
-                temp_df.insert(0, "Item Description", item)
-                summary_data.append(temp_df)
+            render_item_editor(item, "tab")
 
 # Export Summary Section
 st.divider()
