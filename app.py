@@ -185,10 +185,8 @@ def render_item_editor(item, key_prefix):
             else:
                 st.caption(f"**{item} Total Quantity:** `{grand_total:,.2f}`")
 
-            # Format Item Description: First row gets the Item Name, subsequent rows get empty string ""
             temp_df = edited_df.copy()
-            item_labels = [item] + [""] * (len(temp_df) - 1)
-            temp_df.insert(0, "Item Description", item_labels)
+            temp_df.insert(0, "Item Description", item)
             summary_data.append(temp_df)
 
 
@@ -222,10 +220,78 @@ else:
 st.divider()
 st.subheader("📊 Active Grand Total Summary & Export")
 
+
+# Function to generate merged HTML Table for display
+def render_merged_html_table(df):
+    html = """
+    <style>
+        .custom-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: sans-serif;
+            font-size: 14px;
+        }
+        .custom-table th {
+            background-color: #f0f2f6;
+            color: #31333F;
+            border: 1px solid #e6e9ef;
+            padding: 8px 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        .custom-table td {
+            border: 1px solid #e6e9ef;
+            padding: 8px 12px;
+            color: #31333F;
+        }
+        .merged-cell {
+            vertical-align: middle;
+            font-weight: 500;
+            background-color: #ffffff;
+        }
+    </style>
+    <table class="custom-table">
+        <thead>
+            <tr>
+    """
+    # Header
+    for col in df.columns:
+        html += f"<th>{col}</th>"
+    html += "</tr></thead><tbody>"
+
+    # Grouping rows by Item Description for rowspan (Merge)
+    grouped = df.groupby("Item Description", sort=False)
+
+    for item_name, group in grouped:
+        row_count = len(group)
+        for i, (_, row) in enumerate(group.iterrows()):
+            html += "<tr>"
+            if i == 0:
+                html += f'<td class="merged-cell" rowspan="{row_count}">{item_name}</td>'
+
+            for col in df.columns:
+                if col != "Item Description":
+                    val = row[col]
+                    val_str = (
+                        f"{val:,.2f}"
+                        if isinstance(val, (int, float)) and not pd.isna(val)
+                        else str(val)
+                    )
+                    html += f"<td>{val_str if val_str != 'nan' else ''}</td>"
+            html += "</tr>"
+
+    html += "</tbody></table>"
+    return html
+
+
 if summary_data:
     full_sheet_df = pd.concat(summary_data, ignore_index=True)
-    st.dataframe(full_sheet_df, use_container_width=True)
 
+    # Render Merged HTML Table directly
+    st.markdown(render_merged_html_table(full_sheet_df), unsafe_allow_html=True)
+    st.write("")
+
+    # Export Button (Original CSV Data structure)
     csv = full_sheet_df.to_csv(index=False).encode("utf-8")
     st.download_button(
         label="📄 Download Complete Measurement Sheet (CSV)",
