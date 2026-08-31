@@ -24,7 +24,7 @@ st.sidebar.divider()
 st.sidebar.markdown(f"**Project:** {project_name}")
 st.sidebar.markdown(f"**Location:** {location}")
 
-# Full Structure Items List (Including Staircase Work from Book1_4.xlsx)
+# Comprehensive Work Items List
 items_list = [
     "1. Site Cleaning Work (Sqft)",
     "2. Staking Works For Preparation of Foundation (Sqft)",
@@ -55,6 +55,7 @@ items_list = [
     "8. (v) (b) Staircase Formwork (Sqft)",
     "8. (v) (c) Staircase Rebar Work (10mmØ) (ft)",
     "8. (v) (c) Staircase Rebar Work (12mmØ) (ft)",
+    "9. Backfilling Work (Cuft)",
 ]
 
 # Base Empty Template Structure
@@ -77,136 +78,77 @@ default_empty_df = pd.DataFrame(
 if "data_store" not in st.session_state:
     st.session_state.data_store = {}
 
-# Populate initial templates with sample values from Book1_4.xlsx
+# Populate default/initial data
 for item in items_list:
     if item not in st.session_state.data_store:
-        if "Staircase (1:2:4) Reinforced Concrete Work" in item:
+        if "9. Backfilling Work" in item:
             st.session_state.data_store[item] = pd.DataFrame(
                 [
                     {
-                        "Particular": "Waist Slab-1 (Ground to 1st Floor)",
+                        "Particular": "Excavated Volume",
                         "Nos (x)": 1,
                         "Member (x)": 1,
                         "Multiplier": 1,
-                        "L / Length (ft)": 10.68,
-                        "B (ft)": 4.00,
-                        "H (ft)": 0.417,
+                        "L / Length (ft)": 0.0,
+                        "B (ft)": 0.0,
+                        "H (ft)": 0.0,
                         "Deduction": 0.0,
+                        "Direct Volume (Cuft)": 6253.30,
                     },
                     {
-                        "Particular": "Flight-1 Steps (10 Steps)",
-                        "Nos (x)": 1,
-                        "Member (x)": 10,
-                        "Multiplier": 1,
-                        "L / Length (ft)": 4.00,
-                        "B (ft)": 0.917,
-                        "H (ft)": 0.261,
-                        "Deduction": 0.0,
-                    },
-                    {
-                        "Particular": "Waist Slab-2 (Ground to 1st Floor)",
+                        "Particular": "Hardcore Volume (-)",
                         "Nos (x)": 1,
                         "Member (x)": 1,
                         "Multiplier": 1,
-                        "L / Length (ft)": 10.68,
-                        "B (ft)": 4.00,
-                        "H (ft)": 0.417,
+                        "L / Length (ft)": 0.0,
+                        "B (ft)": 0.0,
+                        "H (ft)": 0.0,
                         "Deduction": 0.0,
+                        "Direct Volume (Cuft)": 513.57,
                     },
                     {
-                        "Particular": "Flight-2 Steps (10 Steps)",
+                        "Particular": "Lean Concrete Volume (-)",
                         "Nos (x)": 1,
-                        "Member (x)": 10,
-                        "Multiplier": 1,
-                        "L / Length (ft)": 4.00,
-                        "B (ft)": 0.917,
-                        "H (ft)": 0.261,
-                        "Deduction": 0.0,
-                    },
-                ]
-            )
-        elif "Staircase Formwork" in item:
-            st.session_state.data_store[item] = pd.DataFrame(
-                [
-                    {
-                        "Particular": "Waist Slab Bottom Formwork (Waist 1 & 2)",
-                        "Nos (x)": 2,
                         "Member (x)": 1,
                         "Multiplier": 1,
-                        "L / Length (ft)": 10.68,
-                        "B (ft)": 4.00,
-                        "H (ft)": 0.0,
-                        "Deduction": 0.0,
-                    },
-                    {
-                        "Particular": "Flight Riser Formwork (20 Risers)",
-                        "Nos (x)": 20,
-                        "Member (x)": 1,
-                        "Multiplier": 1,
-                        "L / Length (ft)": 4.00,
-                        "B (ft)": 0.0,
-                        "H (ft)": 0.523,
-                        "Deduction": 0.0,
-                    },
-                    {
-                        "Particular": "Staircase Side Formwork",
-                        "Nos (x)": 4,
-                        "Member (x)": 1,
-                        "Multiplier": 1,
-                        "L / Length (ft)": 10.68,
-                        "B (ft)": 0.0,
-                        "H (ft)": 1.417,
-                        "Deduction": 0.0,
-                    },
-                ]
-            )
-        elif "Staircase Rebar Work (10mmØ)" in item:
-            st.session_state.data_store[item] = pd.DataFrame(
-                [
-                    {
-                        "Particular": "Distribution Bar (10mmØ @ 6\"c/c)",
-                        "Nos (x)": 30,
-                        "Member (x)": 1,
-                        "Multiplier": 1,
-                        "L / Length (ft)": 4.75,
+                        "L / Length (ft)": 0.0,
                         "B (ft)": 0.0,
                         "H (ft)": 0.0,
                         "Deduction": 0.0,
+                        "Direct Volume (Cuft)": 291.07,
                     },
                     {
-                        "Particular": "Additional Bar (10mmØ @ 6\"c/c)",
-                        "Nos (x)": 16,
+                        "Particular": "Footing Concrete Volume (-)",
+                        "Nos (x)": 1,
                         "Member (x)": 1,
                         "Multiplier": 1,
-                        "L / Length (ft)": 6.00,
+                        "L / Length (ft)": 0.0,
                         "B (ft)": 0.0,
                         "H (ft)": 0.0,
                         "Deduction": 0.0,
+                        "Direct Volume (Cuft)": 611.00,
                     },
-                ]
-            )
-        elif "Staircase Rebar Work (12mmØ)" in item:
-            st.session_state.data_store[item] = pd.DataFrame(
-                [
                     {
-                        "Particular": "Main Bar Bottom Layer (12mmØ @ 6\"c/c)",
-                        "Nos (x)": 8,
+                        "Particular": "Short Column Concrete Volume (-)",
+                        "Nos (x)": 1,
                         "Member (x)": 1,
                         "Multiplier": 1,
-                        "L / Length (ft)": 14.18,
+                        "L / Length (ft)": 0.0,
                         "B (ft)": 0.0,
                         "H (ft)": 0.0,
                         "Deduction": 0.0,
+                        "Direct Volume (Cuft)": 90.68,
                     },
                     {
-                        "Particular": "Main Bar Top Layer (12mmØ @ 6\"c/c)",
-                        "Nos (x)": 8,
+                        "Particular": "Retaining Wall Volume (-)",
+                        "Nos (x)": 1,
                         "Member (x)": 1,
                         "Multiplier": 1,
-                        "L / Length (ft)": 10.62,
+                        "L / Length (ft)": 0.0,
                         "B (ft)": 0.0,
                         "H (ft)": 0.0,
                         "Deduction": 0.0,
+                        "Direct Volume (Cuft)": 497.95,
                     },
                 ]
             )
@@ -216,6 +158,9 @@ for item in items_list:
 
 # Calculation Logic
 def calculate_content(row, item_type):
+    if "Direct Volume (Cuft)" in row and row["Direct Volume (Cuft)"] > 0:
+        return round(float(row["Direct Volume (Cuft)"]), 2)
+
     no = (
         row.get("Nos (x)", 1)
         * row.get("Member (x)", 1)
@@ -226,16 +171,16 @@ def calculate_content(row, item_type):
     height = row.get("H (ft)", 0.0)
     deduction = row.get("Deduction", 0.0)
 
-    if "(ft)" in item_type:  # Rebar Linear Length
+    if "(ft)" in item_type:
         total = (no * length) - deduction
-    elif "Sqft" in item_type:  # Formwork / Area
+    elif "Sqft" in item_type:
         b_val = (
             breadth
             if breadth > 0
             else (height if height > 0 else 1.0)
         )
         total = (no * length * b_val) - deduction
-    else:  # Volume (Cuft)
+    else:
         total = (no * length * breadth * height) - deduction
 
     return round(total, 2)
@@ -252,7 +197,7 @@ summary_data = []
 st.divider()
 
 
-# Render Data Editor Table
+# Dynamic Editor Renderer
 def render_item_editor(item, key_prefix):
     df_input = st.session_state.data_store.get(item, default_empty_df.copy())
 
@@ -276,6 +221,11 @@ def render_item_editor(item, key_prefix):
         ),
     }
 
+    if "Backfilling Work" in item:
+        col_config["Direct Volume (Cuft)"] = st.column_config.NumberColumn(
+            min_value=0.0, format="%.2f"
+        )
+
     disabled_cols = []
     if "(ft)" in item:
         disabled_cols = ["B (ft)", "H (ft)"]
@@ -295,31 +245,46 @@ def render_item_editor(item, key_prefix):
         )
         st.session_state.data_store[item] = edited_df
 
-        total_qty = edited_df["Content"].sum()
+        if "Backfilling Work" in item:
+            excavated_v = edited_df[
+                edited_df["Particular"].str.contains(
+                    "Excavated", case=False, na=False
+                )
+            ]["Content"].sum()
+            deductions_v = edited_df[
+                ~edited_df["Particular"].str.contains(
+                    "Excavated", case=False, na=False
+                )
+            ]["Content"].sum()
 
-        if "(ft)" in item:
+            backfill_v = excavated_v - deductions_v
+            disposal_v = deductions_v
+
+            st.metric("📦 Backfill Volume (မြေပြန်ဖို့ထုထည်)", f"{backfill_v:,.2f} Cuft")
+            st.info(
+                f"🚛 **Disposal Volume (စွန့်ထုတ်ရမည့် မြေပိုထုထည်):**"
+                f" `{disposal_v:,.2f} Cuft`"
+            )
+        elif "(ft)" in item:
+            total_qty = edited_df["Content"].sum()
             st.caption(f"**{item} - Total Length:** `{total_qty:,.2f} ft`")
             if "16mmØ" in item:
-                ton_val = total_qty / 2084.42
                 st.info(
-                    f"💡 **16mmØ Rebar Estimate:** `{ton_val:,.3f} Ton` (Approx:"
-                    " 53 Nos/Ton)"
+                    f"💡 **16mmØ Rebar Weight:** `{total_qty/2084.42:,.3f} Ton`"
                 )
             elif "12mmØ" in item:
-                ton_val = total_qty / 3461.30
                 st.info(
-                    f"💡 **12mmØ Rebar Estimate:** `{ton_val:,.3f} Ton` (Approx:"
-                    " 88 Nos/Ton)"
+                    f"💡 **12mmØ Rebar Weight:** `{total_qty/3461.30:,.3f} Ton`"
                 )
             elif "10mmØ" in item:
-                ton_val = total_qty / 5304.00
                 st.info(
-                    f"💡 **10mmØ Rebar Estimate:** `{ton_val:,.3f} Ton` (Approx:"
-                    " 135 Nos/Ton)"
+                    f"💡 **10mmØ Rebar Weight:** `{total_qty/5304.00:,.3f} Ton`"
                 )
         elif "Sqft" in item:
+            total_qty = edited_df["Content"].sum()
             st.caption(f"**{item} - Total Area:** `{total_qty:,.2f} Sqft`")
         else:
+            total_qty = edited_df["Content"].sum()
             st.caption(f"**{item} - Total Volume:** `{total_qty:,.2f} Cuft`")
 
         temp_df = edited_df.copy()
