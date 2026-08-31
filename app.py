@@ -1,172 +1,170 @@
-import io
 import pandas as pd
 import streamlit as st
 
 st.set_page_config(
-    page_title="Detail Measurement & Estimator", page_icon="🏗️", layout="wide"
+    page_title="Quantity Takeoff & Estimate Calculator",
+    page_icon="🏗️",
+    layout="wide",
 )
 
-st.title("🏗️ Detail Measurement & Quantity Estimator")
-st.caption("Project: Two Storeyed RCC Building | Location: Pyin Oo Lwin")
+st.title("🏗️ Detail Measurement & Estimate Calculator")
+st.write("အဆောက်အအုံဆောက်လုပ်ရေးအတွက် အသေးစိတ် ပမာဏတွက်ချက်မှုဇယား")
 
-# Session state မှာ Table Data ကို သိမ်းဆည်းရန် Initialize လုပ်ခြင်း
-if "measurement_data" not in st.session_state:
-    st.session_state.measurement_data = pd.DataFrame(
-        columns=[
-            "Item No",
-            "Particular",
-            "Nos",
-            "L (ft)",
-            "B (ft)",
-            "H (ft)",
-            "Quantity",
-            "Unit",
-            "Unit Price (MMK)",
-            "Total Amount (MMK)",
+# Project Info Inputs
+st.sidebar.header("📌 Project Details")
+project_name = st.sidebar.text_input(
+    "Project Name", "Two Storeyed RCC Building"
+)
+location = st.sidebar.text_input("Location", "Pyin Oo Lwin")
+description = st.sidebar.text_input("Description", "Sub & Super Structure Work")
+
+st.sidebar.divider()
+st.sidebar.markdown(f"**Project:** {project_name}")
+st.sidebar.markdown(f"**Location:** {location}")
+
+# Items setup
+items_list = [
+    "1. Site Cleaning Work (Sqft)",
+    "2. Staking Works For Preparation of Foundation (Sqft)",
+    "3. Earthwork Excavation For Foundation (Cuft)",
+    "4. Hardcore With Sand Filling Work (Cuft)",
+]
+
+selected_item = st.selectbox("လုပ်ငန်းစဉ် အမျိုးအစား ကိုရွေးချယ်ပါ -", items_list)
+
+# Initial sample templates for input dataframe
+if "data_store" not in st.session_state:
+    st.session_state.data_store = {
+        "3. Earthwork Excavation For Foundation (Cuft)": pd.DataFrame(
+            [
+                {
+                    "Particular": "F1 (7'-0\"x7'-0\")",
+                    "No": 3,
+                    "L (ft)": 8.0,
+                    "B (ft)": 8.0,
+                    "H (ft)": 5.0,
+                    "Deduction": 0.0,
+                },
+                {
+                    "Particular": "F2 (6'-0\"x6'-0\")",
+                    "No": 5,
+                    "L (ft)": 7.0,
+                    "B (ft)": 7.0,
+                    "H (ft)": 5.0,
+                    "Deduction": 0.0,
+                },
+                {
+                    "Particular": "F3 (5'-0\"x5'-0\")",
+                    "No": 9,
+                    "L (ft)": 6.0,
+                    "B (ft)": 6.0,
+                    "H (ft)": 5.0,
+                    "Deduction": 0.0,
+                },
+            ]
+        ),
+        "4. Hardcore With Sand Filling Work (Cuft)": pd.DataFrame(
+            [
+                {
+                    "Particular": "F1 (7'-0\"x7'-0\")",
+                    "No": 3,
+                    "L (ft)": 7.0,
+                    "B (ft)": 7.0,
+                    "H (ft)": 0.5,
+                    "Deduction": 0.0,
+                },
+                {
+                    "Particular": "F2 (6'-0\"x6'-0\")",
+                    "No": 5,
+                    "L (ft)": 6.0,
+                    "B (ft)": 6.0,
+                    "H (ft)": 0.5,
+                    "Deduction": 0.0,
+                },
+            ]
+        ),
+    }
+
+# Ensure dataframe exists for selected item
+if selected_item not in st.session_state.data_store:
+    st.session_state.data_store[selected_item] = pd.DataFrame(
+        [
+            {
+                "Particular": "",
+                "No": 1,
+                "L (ft)": 0.0,
+                "B (ft)": 0.0,
+                "H (ft)": 0.0,
+                "Deduction": 0.0,
+            }
         ]
     )
 
-# ---------------------------------------------------------
-# Sidebar - Input Form (အချက်အလက်များ ရိုက်ထည့်ရန်နေရာ)
-# ---------------------------------------------------------
-st.sidebar.header("📝 Measurement Input")
+st.subheader(f"📝 Measurement Data Entry: {selected_item}")
 
-with st.sidebar.form("input_form", clear_on_submit=True):
-    item_no = st.number_input("Item No.", min_value=1, step=1, value=1)
-    particular = st.text_input(
-        "Particular (လုပ်ငန်းအမျိုးအမည်)",
-        placeholder="e.g. F1 Footing Excavation",
-    )
-
-    col1, col2 = st.columns(2)
-    nos = col1.number_input("Nos (အရေအတွက်)", min_value=1.0, value=1.0, step=1.0)
-    unit = col2.selectbox("Unit (ယူနစ်)", ["Cuft", "Sqft", "Rft", "Nos"])
-
-    col_l, col_b, col_h = st.columns(3)
-    length = col_l.number_input("L - Length (ft)", min_value=0.0, value=0.0, step=0.1)
-    width = col_b.number_input("B - Breadth (ft)", min_value=0.0, value=0.0, step=0.1)
-    height = col_h.number_input("H - Height (ft)", min_value=0.0, value=0.0, step=0.1)
-
-    unit_price = st.number_input(
-        "Unit Price / Rate (MMK)", min_value=0.0, value=0.0, step=100.0
-    )
-
-    submitted = st.form_submit_button("➕ Add Item to Sheet")
-
-    if submitted:
-        if particular.strip() == "":
-            st.error("ကျေးဇူးပြု၍ Particular (လုပ်ငန်းအမည်) ဖြည့်စွက်ပေးပါ။")
-        else:
-            # Dimension / Quantity Calculation Logic
-            if unit == "Cuft":
-                qty = nos * length * width * height
-            elif unit == "Sqft":
-                qty = (
-                    nos * length * width
-                    if width > 0
-                    else nos * length * (height if height > 0 else 1.0)
-                )
-            elif unit == "Rft":
-                qty = nos * length
-            else:  # Nos
-                qty = nos
-
-            total_amount = qty * unit_price
-
-            # Create new record
-            new_data = {
-                "Item No": item_no,
-                "Particular": particular,
-                "Nos": nos,
-                "L (ft)": length,
-                "B (ft)": width,
-                "H (ft)": height,
-                "Quantity": round(qty, 2),
-                "Unit": unit,
-                "Unit Price (MMK)": unit_price,
-                "Total Amount (MMK)": round(total_amount, 2),
-            }
-
-            # Add to Session State DataFrame
-            st.session_state.measurement_data = pd.concat(
-                [
-                    st.session_state.measurement_data,
-                    pd.DataFrame([new_data]),
-                ],
-                ignore_index=True,
-            )
-            st.success(f"'{particular}' ကို ထည့်သွင်းပြီးပါပြီ။")
-
-# ---------------------------------------------------------
-# Main Page - Summary & Editable Data Table
-# ---------------------------------------------------------
-df = st.session_state.measurement_data
-
-# Dashboard Metrics Summary
-total_qty_cuft = df[df["Unit"] == "Cuft"]["Quantity"].sum()
-total_qty_sqft = df[df["Unit"] == "Sqft"]["Quantity"].sum()
-total_cost = df["Total Amount (MMK)"].sum()
-
-m1, m2, m3 = st.columns(3)
-m1.metric("Total Earthwork/Volume", f"{total_qty_cuft:,.2f} Cuft")
-m2.metric("Total Area", f"{total_qty_sqft:,.2f} Sqft")
-m3.metric("Estimated Total Cost", f"{total_cost:,.2f} MMK")
-
-st.divider()
-
-# Interactive & Editable Table
-st.subheader("📋 Measurement & Cost Sheet")
-
-if not df.empty:
-    # ဇယားထဲမှာ တိုက်ရိုက် ပြင်ဆင်နိုင်အောင် Data Editor သုံးထားပါတယ်
-    edited_df = st.data_editor(
-        df,
-        num_rows="dynamic",
-        use_container_width=True,
-        key="data_editor",
-    )
-
-    # ပြင်ဆင်လိုက်ပါက Quantity နှင့် Total Amount ကို ပြန်တွက်ပေးခြင်း
-    edited_df["Quantity"] = edited_df.apply(
-        lambda r: (
-            r["Nos"] * r["L (ft)"] * r["B (ft)"] * r["H (ft)"]
-            if r["Unit"] == "Cuft"
-            else (
-                r["Nos"] * r["L (ft)"] * r["B (ft)"]
-                if r["Unit"] == "Sqft"
-                else (r["Nos"] * r["L (ft)"] if r["Unit"] == "Rft" else r["Nos"])
-            )
+# Editable Table Input
+edited_df = st.data_editor(
+    st.session_state.data_store[selected_item],
+    num_rows="dynamic",
+    use_container_width=True,
+    column_config={
+        "No": st.column_config.NumberColumn(min_value=1, step=1, default=1),
+        "L (ft)": st.column_config.NumberColumn(min_value=0.0, format="%.2f"),
+        "B (ft)": st.column_config.NumberColumn(min_value=0.0, format="%.2f"),
+        "H (ft)": st.column_config.NumberColumn(
+            min_value=0.0, format="%.2f", help="Sqft အတွက်ဖြစ်ပါက 1 ဟုထားပါ"
         ),
-        axis=1,
+        "Deduction": st.column_config.NumberColumn(
+            min_value=0.0, format="%.2f"
+        ),
+    },
+)
+
+# Calculate Content
+# If Sqft, multiplier for H is treated as 1 if H=0
+def calculate_content(row):
+    h_val = row["H (ft)"] if row["H (ft)"] > 0 else 1.0
+    total = (
+        (row["No"] * row["L (ft)"] * row["B (ft)"] * h_val) - row["Deduction"]
     )
-    edited_df["Total Amount (MMK)"] = (
-        edited_df["Quantity"] * edited_df["Unit Price (MMK)"]
-    )
-    st.session_state.measurement_data = edited_df
+    return round(total, 2)
 
-    # Clear and Export Buttons
-    col_btn1, col_btn2 = st.columns([1, 5])
 
-    if col_btn1.button("🗑️ Clear All Data"):
-        st.session_state.measurement_data = pd.DataFrame(
-            columns=df.columns
-        )
-        st.rerun()
+if not edited_df.empty:
+    edited_df["Content"] = edited_df.apply(calculate_content, axis=1)
+    st.session_state.data_store[selected_item] = edited_df
 
-    # Excel Download Functionality
-    output = io.BytesIO()
-    with pd.ExcelWriter(output, engine="openpyxl") as writer:
-        edited_df.to_excel(writer, index=False, sheet_name="Measurement Sheet")
-    excel_data = output.getvalue()
+    st.subheader("📊 Calculation Summary")
+    st.dataframe(edited_df, use_container_width=True)
 
-    col_btn2.download_button(
-        label="📥 Download Excel Sheet",
-        data=excel_data,
-        file_name="Detail_Measurement_Sheet.xlsx",
-        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    item_total = edited_df["Content"].sum()
+    unit = "Sqft" if "Sqft" in selected_item else "Cuft"
+
+    st.metric(
+        label=f"Total Quantity for [{selected_item}]",
+        value=f"{item_total:,.2f} {unit}",
     )
 
-else:
-    st.info(
-        "👈 ဘယ်ဘက် Sidebar Form မှာ Measurement အချက်အလက်များ စတင်ထည့်သွင်းပါ။"
+# Export Functionality
+st.divider()
+st.subheader("📥 Export Summary Data")
+
+# Combine all data
+all_records = []
+for item_name, df_item in st.session_state.data_store.items():
+    if not df_item.empty:
+        temp_df = df_item.copy()
+        temp_df["Content"] = temp_df.apply(calculate_content, axis=1)
+        temp_df["Item Description"] = item_name
+        all_records.append(temp_df)
+
+if all_records:
+    final_export_df = pd.concat(all_records, ignore_index=True)
+    csv = final_export_df.to_csv(index=False).encode("utf-8")
+
+    st.download_button(
+        label="📄 Export to CSV (Excel File)",
+        data=csv,
+        file_name=f"{project_name}_Measurement_Sheet.csv",
+        mime="text/csv",
     )
