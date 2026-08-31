@@ -52,7 +52,7 @@ items_list = [
     "16. Bamboo Scaffolding Work (Sqft)",
 ]
 
-# Base Empty Template with explicit float data types to prevent TypeError
+# Base Empty Template
 default_empty_df = pd.DataFrame(
     [
         {
@@ -81,7 +81,6 @@ for item in items_list:
         st.session_state.data_store[item] = default_empty_df.copy()
 
 
-# Safe calculation engine with type error handling
 def calculate_item_content(row, item_name):
     try:
         direct_val = pd.to_numeric(row.get("Direct Total", 0), errors="coerce")
@@ -98,7 +97,6 @@ def calculate_item_content(row, item_name):
         h_val = pd.to_numeric(row.get("H / Height (ft)", 0.0), errors="coerce")
         deduction = pd.to_numeric(row.get("Deduction", 0.0), errors="coerce")
 
-        # Fallback to 0 if NaN
         no = 0.0 if pd.isna(no) else no
         l_val = 0.0 if pd.isna(l_val) else l_val
         w_val = 0.0 if pd.isna(w_val) else w_val
@@ -118,7 +116,6 @@ def calculate_item_content(row, item_name):
         return 0.0
 
 
-# Callback function for status change
 def on_status_change(item_key):
     st.session_state.active_items[item_key] = st.session_state[
         f"radio_choice_{item_key}"
@@ -140,7 +137,6 @@ def render_item_editor(item, key_prefix):
     current_status = st.session_state.active_items.get(item, "ထည့်တွက်မည်")
     selected_index = 0 if current_status == "ထည့်တွက်မည်" else 1
 
-    # Radio choice with key and on_change callback to safely update status without page crash
     st.radio(
         "တွက်ချက်မှုတွင် ပါဝင်မှုအခြေအနေ ရွေးချယ်ပါ -",
         ["ထည့်တွက်မည်", "ထည့်မတွက်ပါ"],
@@ -189,8 +185,10 @@ def render_item_editor(item, key_prefix):
             else:
                 st.caption(f"**{item} Total Quantity:** `{grand_total:,.2f}`")
 
+            # Format Item Description: First row gets the Item Name, subsequent rows get empty string ""
             temp_df = edited_df.copy()
-            temp_df.insert(0, "Item Description", item)
+            item_labels = [item] + [""] * (len(temp_df) - 1)
+            temp_df.insert(0, "Item Description", item_labels)
             summary_data.append(temp_df)
 
 
