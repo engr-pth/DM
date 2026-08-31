@@ -24,7 +24,7 @@ st.sidebar.divider()
 st.sidebar.markdown(f"**Project:** {project_name}")
 st.sidebar.markdown(f"**Location:** {location}")
 
-# All Work Items List (Including Column Works from Page 5 & 6)
+# Comprehensive Work Items List (Pages 1-6 + Beam Schedule from Book1.xlsx)
 items_list = [
     "1. Site Cleaning Work (Sqft)",
     "2. Staking Works For Preparation of Foundation (Sqft)",
@@ -43,6 +43,10 @@ items_list = [
     "8. (ii) (b) Column Formwork (Sqft)",
     "8. (ii) (c) Column Rebar Work (16mmØ) (ft)",
     "8. (ii) (c) Column Rebar Work (10mmØ) (ft)",
+    "8. (iii) (a) Beam (1:2:4) Reinforced Concrete Work (Cuft)",
+    "8. (iii) (b) Beam Formwork (Sqft)",
+    "8. (iii) (c) Beam Rebar Work (16mmØ) (ft)",
+    "8. (iii) (c) Beam Rebar Work (10mmØ) (ft)",
 ]
 
 # Base Empty Template Structure
@@ -65,113 +69,113 @@ default_empty_df = pd.DataFrame(
 if "data_store" not in st.session_state:
     st.session_state.data_store = {}
 
-# Populate initial templates
+# Populate initial templates with sample values from Book1.xlsx
 for item in items_list:
     if item not in st.session_state.data_store:
-        if "Column (1:2:4) Reinforced Concrete" in item:
+        if "Beam (1:2:4) Reinforced Concrete Work" in item:
             st.session_state.data_store[item] = pd.DataFrame(
                 [
                     {
-                        "Particular": "Short Column - C1 (14\"x14\")",
-                        "Nos (x)": 16,
+                        "Particular": "Ground Beam GB-1 (G.L-A)",
+                        "Nos (x)": 1,
                         "Member (x)": 1,
                         "Multiplier": 1,
-                        "L / Length (ft)": 1.17,
-                        "B (ft)": 1.17,
-                        "H (ft)": 5.25,
+                        "L / Length (ft)": 11.245,
+                        "B (ft)": 0.833,
+                        "H (ft)": 1.167,
                         "Deduction": 0.0,
                     },
                     {
-                        "Particular": "Long Column (GF to 1F) - C1 (12\"x12\")",
-                        "Nos (x)": 16,
+                        "Particular": "1st Floor Beam FB-1 (G.L-A)",
+                        "Nos (x)": 1,
                         "Member (x)": 1,
                         "Multiplier": 1,
-                        "L / Length (ft)": 1.00,
-                        "B (ft)": 1.00,
-                        "H (ft)": 11.50,
+                        "L / Length (ft)": 11.830,
+                        "B (ft)": 0.833,
+                        "H (ft)": 1.167,
                         "Deduction": 0.0,
                     },
                     {
-                        "Particular": "Long Column (1F to Roof) - C1 (12\"x12\")",
-                        "Nos (x)": 14,
+                        "Particular": "Roof Beam RB-1 (G.L-A)",
+                        "Nos (x)": 1,
                         "Member (x)": 1,
                         "Multiplier": 1,
-                        "L / Length (ft)": 1.00,
-                        "B (ft)": 1.00,
-                        "H (ft)": 10.00,
+                        "L / Length (ft)": 11.830,
+                        "B (ft)": 0.833,
+                        "H (ft)": 1.000,
                         "Deduction": 0.0,
                     },
                 ]
             )
-        elif "Column Formwork" in item:
+        elif "Beam Formwork" in item:
             st.session_state.data_store[item] = pd.DataFrame(
                 [
                     {
-                        "Particular": "Short Column - C1 Perimeter",
-                        "Nos (x)": 16,
+                        "Particular": "Ground Beam GB-1 Formwork Side",
+                        "Nos (x)": 2,
                         "Member (x)": 1,
                         "Multiplier": 1,
-                        "L / Length (ft)": 4.67,
-                        "B (ft)": 1.0,
-                        "H (ft)": 5.25,
+                        "L / Length (ft)": 11.245,
+                        "B (ft)": 0.0,
+                        "H (ft)": 1.167,
                         "Deduction": 0.0,
                     },
                     {
-                        "Particular": "Long Column (GF to 1F) - C1 Perimeter",
-                        "Nos (x)": 16,
+                        "Particular": "1st Floor Beam FB-1 Formwork Side & Bottom",
+                        "Nos (x)": 1,
                         "Member (x)": 1,
                         "Multiplier": 1,
-                        "L / Length (ft)": 4.00,
-                        "B (ft)": 1.0,
-                        "H (ft)": 11.50,
-                        "Deduction": 0.0,
-                    },
-                ]
-            )
-        elif "Column Rebar Work (16mmØ)" in item:
-            st.session_state.data_store[item] = pd.DataFrame(
-                [
-                    {
-                        "Particular": "Short Column - C1 (8-16mmØ)",
-                        "Nos (x)": 8,
-                        "Member (x)": 16,
-                        "Multiplier": 1,
-                        "L / Length (ft)": 9.41,
-                        "B (ft)": 0.0,
-                        "H (ft)": 0.0,
-                        "Deduction": 0.0,
-                    },
-                    {
-                        "Particular": "GF to 1F - C1 (8-16mmØ)",
-                        "Nos (x)": 8,
-                        "Member (x)": 16,
-                        "Multiplier": 1,
-                        "L / Length (ft)": 13.60,
-                        "B (ft)": 0.0,
+                        "L / Length (ft)": 11.830,
+                        "B (ft)": 3.167,
                         "H (ft)": 0.0,
                         "Deduction": 0.0,
                     },
                 ]
             )
-        elif "Column Rebar Work (10mmØ)" in item:
+        elif "Beam Rebar Work (16mmØ)" in item:
             st.session_state.data_store[item] = pd.DataFrame(
                 [
                     {
-                        "Particular": "Short Column - C1 (3-10mmØ @ 4\"c/c)",
-                        "Nos (x)": 19,
-                        "Member (x)": 16,
-                        "Multiplier": 1,
-                        "L / Length (ft)": 4.45,
-                        "B (ft)": 0.0,
-                        "H (ft)": 0.0,
-                        "Deduction": 0.0,
-                    },
-                    {
-                        "Particular": "Short Column Dowel Bar (10mmØ)",
+                        "Particular": "GB-1 Top Bar (3-16mmØ)",
                         "Nos (x)": 3,
-                        "Member (x)": 22,
-                        "Multiplier": 2,
-                        "L / Length (ft)": 1.57,
+                        "Member (x)": 1,
+                        "Multiplier": 1,
+                        "L / Length (ft)": 13.251,
+                        "B (ft)": 0.0,
+                        "H (ft)": 0.0,
+                        "Deduction": 0.0,
+                    },
+                    {
+                        "Particular": "GB-1 Bottom Bar (3-16mmØ)",
+                        "Nos (x)": 3,
+                        "Member (x)": 1,
+                        "Multiplier": 1,
+                        "L / Length (ft)": 13.251,
+                        "B (ft)": 0.0,
+                        "H (ft)": 0.0,
+                        "Deduction": 0.0,
+                    },
+                ]
+            )
+        elif "Beam Rebar Work (10mmØ)" in item:
+            st.session_state.data_store[item] = pd.DataFrame(
+                [
+                    {
+                        "Particular": "GB-1 Stirrups (10mmØ @ 4\"c/c)",
+                        "Nos (x)": 45,
+                        "Member (x)": 1,
+                        "Multiplier": 1,
+                        "L / Length (ft)": 3.310,
+                        "B (ft)": 0.0,
+                        "H (ft)": 0.0,
+                        "Deduction": 0.0,
+                    },
+                    {
+                        "Particular": "GB-1 Stirrups (10mmØ @ 6\"c/c)",
+                        "Nos (x)": 42,
+                        "Member (x)": 1,
+                        "Multiplier": 1,
+                        "L / Length (ft)": 3.310,
                         "B (ft)": 0.0,
                         "H (ft)": 0.0,
                         "Deduction": 0.0,
@@ -182,7 +186,7 @@ for item in items_list:
             st.session_state.data_store[item] = default_empty_df.copy()
 
 
-# Smart Content Calculation Function
+# Calculation Logic
 def calculate_content(row, item_type):
     no = (
         row.get("Nos (x)", 1)
@@ -194,12 +198,16 @@ def calculate_content(row, item_type):
     height = row.get("H (ft)", 0.0)
     deduction = row.get("Deduction", 0.0)
 
-    if "(ft)" in item_type:  # Rebar Length
+    if "(ft)" in item_type:  # Linear Length (Rebar)
         total = (no * length) - deduction
-    elif "Sqft" in item_type:  # Area (Formwork / Surface)
-        h_val = height if height > 0 else 1.0
-        total = (no * length * h_val) - deduction
-    else:  # Volume (Cuft)
+    elif "Sqft" in item_type:  # Surface Area (Formwork/Laying)
+        mult = (
+            breadth
+            if breadth > 0
+            else (height if height > 0 else 1.0)
+        )
+        total = (no * length * mult) - deduction
+    else:  # Volume (Concrete/Earthwork/Brickwork)
         total = (no * length * breadth * height) - deduction
 
     return round(total, 2)
@@ -216,7 +224,7 @@ summary_data = []
 st.divider()
 
 
-# Helper function to render data editor
+# Dynamic Data Editor Renderer
 def render_item_editor(item, key_prefix):
     df_input = st.session_state.data_store.get(item, default_empty_df.copy())
 
@@ -231,21 +239,18 @@ def render_item_editor(item, key_prefix):
             min_value=1, step=1, default=1
         ),
         "L / Length (ft)": st.column_config.NumberColumn(
-            min_value=0.0, format="%.2f"
+            min_value=0.0, format="%.3f"
         ),
-        "B (ft)": st.column_config.NumberColumn(min_value=0.0, format="%.2f"),
-        "H (ft)": st.column_config.NumberColumn(min_value=0.0, format="%.2f"),
+        "B (ft)": st.column_config.NumberColumn(min_value=0.0, format="%.3f"),
+        "H (ft)": st.column_config.NumberColumn(min_value=0.0, format="%.3f"),
         "Deduction": st.column_config.NumberColumn(
             min_value=0.0, format="%.2f"
         ),
     }
 
-    # Column Visibility Handling
     disabled_cols = []
     if "(ft)" in item:
         disabled_cols = ["B (ft)", "H (ft)"]
-    elif "Sqft" in item:
-        disabled_cols = ["B (ft)"]
 
     edited_df = st.data_editor(
         df_input,
@@ -264,19 +269,18 @@ def render_item_editor(item, key_prefix):
 
         total_qty = edited_df["Content"].sum()
 
-        # Display Summary Info per item
         if "(ft)" in item:
             st.caption(f"**{item} - Total Length:** `{total_qty:,.2f} ft`")
             if "16mmØ" in item:
                 ton_val = total_qty / 2084.42
                 st.info(
-                    f"💡 **16mmØ Rebar Estimate:** `{ton_val:,.3f} Ton` (Approx:"
+                    f"💡 **16mmØ Rebar Weight:** `{ton_val:,.3f} Ton` (Approx:"
                     " 53 Nos/Ton)"
                 )
             elif "10mmØ" in item:
                 ton_val = total_qty / 5304.00
                 st.info(
-                    f"💡 **10mmØ Rebar Estimate:** `{ton_val:,.3f} Ton` (Approx:"
+                    f"💡 **10mmØ Rebar Weight:** `{ton_val:,.3f} Ton` (Approx:"
                     " 135 Nos/Ton)"
                 )
         elif "Sqft" in item:
@@ -289,7 +293,7 @@ def render_item_editor(item, key_prefix):
         summary_data.append(temp_df)
 
 
-# Render Views
+# Render Selected View
 if view_type == "ကဏ္ဍအလိုက် ချုံ့/ချဲ့ စာရင်း (Expander)":
     for item in items_list:
         with st.expander(f"📋 {item}", expanded=False):
