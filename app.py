@@ -16,9 +16,9 @@ st.write(
 # Sidebar - Project Details
 st.sidebar.header("📌 Project Details")
 project_name = st.sidebar.text_input(
-    "Project Name", "?? Storeyed RCC Building"
+    "Project Name", "Two Storeyed RCC Building"
 )
-location = st.sidebar.text_input("Location", "City/Township")
+location = st.sidebar.text_input("Location", "Pyin Oo Lwin")
 description = st.sidebar.text_input("Description", "Sub & Super Structure Work")
 
 st.sidebar.divider()
@@ -52,14 +52,14 @@ items_list = [
     "16. Bamboo Scaffolding Work (Sqft)",
 ]
 
-# Base Empty Template
+# Base Empty Template with explicit float data types to prevent TypeError
 default_empty_df = pd.DataFrame(
     [
         {
             "Particular": "",
-            "Nos (x)": 1,
-            "Member (x)": 1,
-            "Multiplier": 1,
+            "Nos (x)": 1.0,
+            "Member (x)": 1.0,
+            "Multiplier": 1.0,
             "L / Length (ft)": 0.0,
             "B / Width (ft)": 0.0,
             "H / Height (ft)": 0.0,
@@ -73,7 +73,6 @@ default_empty_df = pd.DataFrame(
 if "data_store" not in st.session_state:
     st.session_state.data_store = {}
 
-# Active status for each item (Default explicitly set to "ထည့်တွက်မည်")
 if "active_items" not in st.session_state:
     st.session_state.active_items = {item: "ထည့်တွက်မည်" for item in items_list}
 
@@ -82,29 +81,48 @@ for item in items_list:
         st.session_state.data_store[item] = default_empty_df.copy()
 
 
+# Safe calculation engine with type error handling
 def calculate_item_content(row, item_name):
-    if "Direct Total" in row and row["Direct Total"] > 0:
-        return round(float(row["Direct Total"]), 2)
+    try:
+        direct_val = pd.to_numeric(row.get("Direct Total", 0), errors="coerce")
+        if pd.notna(direct_val) and direct_val > 0:
+            return round(float(direct_val), 2)
 
-    no = (
-        row.get("Nos (x)", 1)
-        * row.get("Member (x)", 1)
-        * row.get("Multiplier", 1)
-    )
-    l_val = row.get("L / Length (ft)", 0.0)
-    w_val = row.get("B / Width (ft)", 0.0)
-    h_val = row.get("H / Height (ft)", 0.0)
-    deduction = row.get("Deduction", 0.0)
+        no = (
+            pd.to_numeric(row.get("Nos (x)", 1), errors="coerce")
+            * pd.to_numeric(row.get("Member (x)", 1), errors="coerce")
+            * pd.to_numeric(row.get("Multiplier", 1), errors="coerce")
+        )
+        l_val = pd.to_numeric(row.get("L / Length (ft)", 0.0), errors="coerce")
+        w_val = pd.to_numeric(row.get("B / Width (ft)", 0.0), errors="coerce")
+        h_val = pd.to_numeric(row.get("H / Height (ft)", 0.0), errors="coerce")
+        deduction = pd.to_numeric(row.get("Deduction", 0.0), errors="coerce")
 
-    if "(Sqft)" in item_name:
-        b_val = w_val if w_val > 0 else (h_val if h_val > 0 else 1.0)
-        total = (no * l_val * b_val) - deduction
-    elif "(Rft" in item_name or "(ft)" in item_name:
-        total = (no * l_val) - deduction
-    else:
-        total = (no * l_val * w_val * h_val) - deduction
+        # Fallback to 0 if NaN
+        no = 0.0 if pd.isna(no) else no
+        l_val = 0.0 if pd.isna(l_val) else l_val
+        w_val = 0.0 if pd.isna(w_val) else w_val
+        h_val = 0.0 if pd.isna(h_val) else h_val
+        deduction = 0.0 if pd.isna(deduction) else deduction
 
-    return round(total, 2)
+        if "(Sqft)" in item_name:
+            b_val = w_val if w_val > 0 else (h_val if h_val > 0 else 1.0)
+            total = (no * l_val * b_val) - deduction
+        elif "(Rft" in item_name or "(ft)" in item_name:
+            total = (no * l_val) - deduction
+        else:
+            total = (no * l_val * w_val * h_val) - deduction
+
+        return round(float(total), 2)
+    except Exception:
+        return 0.0
+
+
+# Callback function for status change
+def on_status_change(item_key):
+    st.session_state.active_items[item_key] = st.session_state[
+        f"radio_choice_{item_key}"
+    ]
 
 
 # View Selector
@@ -122,21 +140,21 @@ def render_item_editor(item, key_prefix):
     current_status = st.session_state.active_items.get(item, "ထည့်တွက်မည်")
     selected_index = 0 if current_status == "ထည့်တွက်မည်" else 1
 
-    # Radio choice with callback capability
-    status_choice = st.radio(
+    # Radio choice with key and on_change callback to safely update status without page crash
+    st.radio(
         "တွက်ချက်မှုတွင် ပါဝင်မှုအခြေအနေ ရွေးချယ်ပါ -",
         ["ထည့်တွက်မည်", "ထည့်မတွက်ပါ"],
         index=selected_index,
         horizontal=True,
-        key=f"radio_choice_{key_prefix}_{item}",
+        key=f"radio_choice_{item}",
+        on_change=on_status_change,
+        args=(item,),
     )
 
-    # Trigger rerun if status changes so header icon updates immediately
-    if status_choice != current_status:
-        st.session_state.active_items[item] = status_choice
-        st.rerun()
-
-    is_included = status_choice == "ထည့်တွက်မည်"
+    is_included = (
+        st.session_state.active_items.get(item, "ထည့်တွက်မည်")
+        == "ထည့်တွက်မည်"
+    )
 
     if not is_included:
         st.warning(
