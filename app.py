@@ -13,7 +13,7 @@ st.write(
     "အဆောက်အအုံဆောက်လုပ်ရေးအတွက် အသေးစိတ် ပမာဏတွက်ချက်မှုဇယား (Full Measurement Sheet)"
 )
 
-# Sidebar - Project Details Only
+# Sidebar - Project Details
 st.sidebar.header("📌 Project Details")
 project_name = st.sidebar.text_input(
     "Project Name", "Two Storeyed RCC Building"
@@ -73,9 +73,9 @@ default_empty_df = pd.DataFrame(
 if "data_store" not in st.session_state:
     st.session_state.data_store = {}
 
-# Active status for each item (True = Include, False = Exclude)
+# Active status for each item ("ထည့်တွက်မည်" or "ထည့်မတွက်ပါ")
 if "active_items" not in st.session_state:
-    st.session_state.active_items = {item: True for item in items_list}
+    st.session_state.active_items = {item: "ထည့်တွက်မည်" for item in items_list}
 
 for item in items_list:
     if item not in st.session_state.data_store:
@@ -119,24 +119,25 @@ st.divider()
 
 
 def render_item_editor(item, key_prefix):
-    # Inside-Item Checkbox to toggle Include / Exclude
-    col_chk, col_info = st.columns([2, 5])
+    # Two-button selection system using Radio Buttons in horizontal mode
+    status_choice = st.radio(
+        "တွက်ချက်မှုတွင် ပါဝင်မှုအခြေအနေ ရွေးချယ်ပါ -",
+        ["ထည့်တွက်မည်", "ထည့်မတွက်ပါ"],
+        index=0
+        if st.session_state.active_items.get(item, "ထည့်တွက်မည်")
+        == "ထည့်တွက်မည်"
+        else 1,
+        horizontal=True,
+        key=f"radio_choice_{key_prefix}_{item}",
+    )
 
-    with col_chk:
-        is_included = st.checkbox(
-            "Include in Total Calculation",
-            value=st.session_state.active_items.get(item, True),
-            key=f"inside_chk_{key_prefix}_{item}",
+    st.session_state.active_items[item] = status_choice
+    is_included = status_choice == "ထည့်တွက်မည်"
+
+    if not is_included:
+        st.warning(
+            "⚠️ ဤ Item ကို Total Calculation မှ ဖယ်ထုတ်ထားပါသည် (Excluded)"
         )
-        st.session_state.active_items[item] = is_included
-
-    with col_info:
-        if is_included:
-            st.caption("✅ **Status:** တွက်ချက်မှုတွင် ထည့်သွင်းထားသည်")
-        else:
-            st.caption(
-                "❌ **Status:** တွက်ချက်မှုမှ ဖယ်ထုတ်ထားသည် (Excluded)"
-            )
 
     st.write("---")
 
@@ -155,7 +156,7 @@ def render_item_editor(item, key_prefix):
         )
         st.session_state.data_store[item] = edited_df
 
-        # Calculate & display metric only if included
+        # Show totals only when "ထည့်တွက်မည်" is selected
         if is_included:
             grand_total = edited_df["Total Content"].sum()
             if "(Sqft)" in item:
@@ -175,17 +176,19 @@ def render_item_editor(item, key_prefix):
 # Render Views
 if view_type == "ကဏ္ဍအလိုက် ချုံ့/ချဲ့ စာရင်း (Expander)":
     for item in items_list:
-        is_active = st.session_state.active_items.get(item, True)
-        label = (
-            f"✅ {item}" if is_active else f"❌ {item} (Excluded)"
+        is_active = (
+            st.session_state.active_items.get(item, "ထည့်တွက်မည်")
+            == "ထည့်တွက်မည်"
         )
+        label = f"✅ {item}" if is_active else f"❌ {item} (ထည့်မတွက်ပါ)"
         with st.expander(label, expanded=False):
             render_item_editor(item, "expander")
 else:
     tabs_labels = [
         (
             f"✅ {it[:12]}..."
-            if st.session_state.active_items.get(it, True)
+            if st.session_state.active_items.get(it, "ထည့်တွက်မည်")
+            == "ထည့်တွက်မည်"
             else f"❌ {it[:12]}..."
         )
         for it in items_list
@@ -206,12 +209,12 @@ if summary_data:
 
     csv = full_sheet_df.to_csv(index=False).encode("utf-8")
     st.download_button(
-        label="📄 Download Selected Items Measurement Sheet (CSV)",
+        label="📄 Download Complete Measurement Sheet (CSV)",
         data=csv,
         file_name=f"{project_name}_Selected_Measurement_Sheet.csv",
         mime="text/csv",
     )
 else:
     st.warning(
-        "⚠️ မည်သည့် Item မှ ရွေးချယ်မထားပါ (All items are currently excluded)."
+        "⚠️ မည်သည့် Item မှ 'ထည့်တွက်မည်' ဟု ရွေးချယ်မထားပါ (All items are excluded)."
     )
