@@ -119,10 +119,10 @@ st.divider()
 
 
 def render_item_editor(item, key_prefix):
-    # Ensure current state defaults to "ထည့်တွက်မည်"
     current_status = st.session_state.active_items.get(item, "ထည့်တွက်မည်")
     selected_index = 0 if current_status == "ထည့်တွက်မည်" else 1
 
+    # Radio choice with callback capability
     status_choice = st.radio(
         "တွက်ချက်မှုတွင် ပါဝင်မှုအခြေအနေ ရွေးချယ်ပါ -",
         ["ထည့်တွက်မည်", "ထည့်မတွက်ပါ"],
@@ -131,7 +131,11 @@ def render_item_editor(item, key_prefix):
         key=f"radio_choice_{key_prefix}_{item}",
     )
 
-    st.session_state.active_items[item] = status_choice
+    # Trigger rerun if status changes so header icon updates immediately
+    if status_choice != current_status:
+        st.session_state.active_items[item] = status_choice
+        st.rerun()
+
     is_included = status_choice == "ထည့်တွက်မည်"
 
     if not is_included:
@@ -156,7 +160,6 @@ def render_item_editor(item, key_prefix):
         )
         st.session_state.data_store[item] = edited_df
 
-        # Calculate totals when "ထည့်တွက်မည်" is selected
         if is_included:
             grand_total = edited_df["Total Content"].sum()
             if "(Sqft)" in item:
