@@ -13,7 +13,7 @@ st.write(
     "အဆောက်အအုံဆောက်လုပ်ရေးအတွက် အသေးစိတ် ပမာဏတွက်ချက်မှုဇယား (Full Measurement Sheet)"
 )
 
-# Sidebar - Project Details
+# Sidebar - Project Details Only
 st.sidebar.header("📌 Project Details")
 project_name = st.sidebar.text_input(
     "Project Name", "Two Storeyed RCC Building"
@@ -25,7 +25,7 @@ st.sidebar.divider()
 st.sidebar.markdown(f"**Project:** {project_name}")
 st.sidebar.markdown(f"**Location:** {location}")
 
-# Full Items List
+# Items List
 items_list = [
     "1. Site Cleaning Work (Sqft)",
     "2. Staking Works For Preparation of Foundation (Sqft)",
@@ -69,40 +69,19 @@ default_empty_df = pd.DataFrame(
     ]
 )
 
-# Global Session State Initializations
+# Session State Storage
 if "data_store" not in st.session_state:
     st.session_state.data_store = {}
 
+# Active status for each item (True = Include, False = Exclude)
 if "active_items" not in st.session_state:
-    # Default: All items are included initially
     st.session_state.active_items = {item: True for item in items_list}
 
-# Initialize data store for each item
 for item in items_list:
     if item not in st.session_state.data_store:
         st.session_state.data_store[item] = default_empty_df.copy()
 
-# Sidebar Multi-Select / Checkbox Control to Include/Exclude Items
-st.sidebar.divider()
-st.sidebar.subheader("⚙️ Select Items to Include")
 
-# Quick action buttons for toggle
-col_btn1, col_btn2 = st.sidebar.columns(2)
-if col_btn1.button("Select All", use_container_width=True):
-    for k in st.session_state.active_items:
-        st.session_state.active_items[k] = True
-if col_btn2.button("Deselect All", use_container_width=True):
-    for k in st.session_state.active_items:
-        st.session_state.active_items[k] = False
-
-# Individual item checkboxes in Sidebar
-for item in items_list:
-    st.session_state.active_items[item] = st.sidebar.checkbox(
-        item, value=st.session_state.active_items[item], key=f"chk_{item}"
-    )
-
-
-# Calculation Function
 def calculate_item_content(row, item_name):
     if "Direct Total" in row and row["Direct Total"] > 0:
         return round(float(row["Direct Total"]), 2)
@@ -128,7 +107,7 @@ def calculate_item_content(row, item_name):
     return round(total, 2)
 
 
-# View Mode Selection
+# View Selector
 view_type = st.radio(
     "မြင်ကွင်းပုံစံ ရွေးချယ်ပါ -",
     ["ကဏ္ဍအလိုက် ချုံ့/ချဲ့ စာရင်း (Expander)", "စာမျက်နှာခွဲ စာရင်း (Tabs)"],
@@ -140,13 +119,26 @@ st.divider()
 
 
 def render_item_editor(item, key_prefix):
-    is_active = st.session_state.active_items.get(item, True)
+    # Inside-Item Checkbox to toggle Include / Exclude
+    col_chk, col_info = st.columns([2, 5])
 
-    # Top status indicator for inclusion
-    if not is_active:
-        st.warning(
-            "⚠️ ဤ Item ကို တွက်ချက်မှုမှ ဖယ်ထုတ်ထားပါသည် (Excluded from Total Calculation)"
+    with col_chk:
+        is_included = st.checkbox(
+            "Include in Total Calculation",
+            value=st.session_state.active_items.get(item, True),
+            key=f"inside_chk_{key_prefix}_{item}",
         )
+        st.session_state.active_items[item] = is_included
+
+    with col_info:
+        if is_included:
+            st.caption("✅ **Status:** တွက်ချက်မှုတွင် ထည့်သွင်းထားသည်")
+        else:
+            st.caption(
+                "❌ **Status:** တွက်ချက်မှုမှ ဖယ်ထုတ်ထားသည် (Excluded)"
+            )
+
+    st.write("---")
 
     df_input = st.session_state.data_store.get(item, default_empty_df.copy())
 
@@ -163,10 +155,9 @@ def render_item_editor(item, key_prefix):
         )
         st.session_state.data_store[item] = edited_df
 
-        # If Item is ACTIVE, calculate totals and append to Summary Sheet
-        if is_active:
+        # Calculate & display metric only if included
+        if is_included:
             grand_total = edited_df["Total Content"].sum()
-
             if "(Sqft)" in item:
                 st.caption(f"**{item} Total Area:** `{grand_total:,.2f} Sqft`")
             elif "(Cuft)" in item:
@@ -181,30 +172,31 @@ def render_item_editor(item, key_prefix):
             summary_data.append(temp_df)
 
 
-# Render Selected View Mode
+# Render Views
 if view_type == "ကဏ္ဍအလိုက် ချုံ့/ချဲ့ စာရင်း (Expander)":
     for item in items_list:
         is_active = st.session_state.active_items.get(item, True)
-        title_prefix = "✅" if is_active else "❌ (Excluded)"
-        with st.expander(f"{title_prefix} {item}", expanded=False):
+        label = (
+            f"✅ {item}" if is_active else f"❌ {item} (Excluded)"
+        )
+        with st.expander(label, expanded=False):
             render_item_editor(item, "expander")
 else:
-    tabs = st.tabs(
-        [
-            (
-                f"✅ {it[:15]}..."
-                if st.session_state.active_items.get(it, True)
-                else f"❌ {it[:15]}..."
-            )
-            for it in items_list
-        ]
-    )
+    tabs_labels = [
+        (
+            f"✅ {it[:12]}..."
+            if st.session_state.active_items.get(it, True)
+            else f"❌ {it[:12]}..."
+        )
+        for it in items_list
+    ]
+    tabs = st.tabs(tabs_labels)
     for idx, item in enumerate(items_list):
         with tabs[idx]:
             st.subheader(item)
             render_item_editor(item, "tab")
 
-# Summary Section
+# Export & Grand Total Summary
 st.divider()
 st.subheader("📊 Active Grand Total Summary & Export")
 
@@ -220,4 +212,6 @@ if summary_data:
         mime="text/csv",
     )
 else:
-    st.info("⚠️ မည်သည့် Item မှ ရွေးချယ်မထားပါ (All items are excluded).")
+    st.warning(
+        "⚠️ မည်သည့် Item မှ ရွေးချယ်မထားပါ (All items are currently excluded)."
+    )
