@@ -24,16 +24,18 @@ st.sidebar.divider()
 st.sidebar.markdown(f"**Project:** {project_name}")
 st.sidebar.markdown(f"**Location:** {location}")
 
-# All Work Items List
+# All Work Items List (Page 1 to Page 4 Items Included)
 items_list = [
     "1. Site Cleaning Work (Sqft)",
     "2. Staking Works For Preparation of Foundation (Sqft)",
     "3. Earthwork Excavation For Foundation (Cuft)",
     "4. Hardcore With Sand Filling Work (Cuft)",
     "5. Lean Concrete (1:4:8) Work (Cuft)",
-    "6. Reinforced Concrete Footing Work (Cuft)",
-    "7. Column Stump Concrete Work (Cuft)",
-    "8. Plinth Beam Concrete Work (Cuft)",
+    "6. 9\"thk; Brick Retaining Wall Work (Cuft)",
+    "7. (a) 12\"thk; Earth Filling Work (Cuft)",
+    "7. (b) 6\"thk; Sandfilling Work (Cuft)",
+    "7. (c) Plastic Sheet Laying Work (Sqft)",
+    "7. (d) 4.5\"thk; (1:3:6) Concrete Work (Cuft)",
 ]
 
 # Base Empty Template Structure
@@ -54,40 +56,56 @@ default_empty_df = pd.DataFrame(
 if "data_store" not in st.session_state:
     st.session_state.data_store = {}
 
-# Populate initial templates
+# Populate initial templates for preview/demo
 for item in items_list:
     if item not in st.session_state.data_store:
-        if "3. Earthwork Excavation" in item:
+        if "6. 9\"thk; Brick Retaining Wall" in item:
             st.session_state.data_store[item] = pd.DataFrame(
                 [
                     {
-                        "Particular": "F1 (7'-0\"x7'-0\")",
-                        "No": 3,
-                        "L (ft)": 8.0,
-                        "B (ft)": 8.0,
-                        "H (ft)": 5.0,
+                        "Particular": "18\"thk; Brick Work (G.L-A)",
+                        "No": 1,
+                        "L (ft)": 23.08,
+                        "B (ft)": 1.50,
+                        "H (ft)": 0.25,
                         "Deduction": 0.0,
                     },
                     {
-                        "Particular": "F2 (6'-0\"x6'-0\")",
-                        "No": 5,
-                        "L (ft)": 7.0,
-                        "B (ft)": 7.0,
-                        "H (ft)": 5.0,
+                        "Particular": "13-1/2\"thk; Brick Work (G.L-A)",
+                        "No": 1,
+                        "L (ft)": 23.08,
+                        "B (ft)": 1.125,
+                        "H (ft)": 0.25,
+                        "Deduction": 0.0,
+                    },
+                    {
+                        "Particular": "9\"thk; Brick Work (G.L-A)",
+                        "No": 1,
+                        "L (ft)": 23.08,
+                        "B (ft)": 0.75,
+                        "H (ft)": 3.50,
                         "Deduction": 0.0,
                     },
                 ]
             )
-        elif "4. Hardcore With Sand" in item:
+        elif "7. (a) 12\"thk; Earth Filling" in item:
             st.session_state.data_store[item] = pd.DataFrame(
                 [
                     {
-                        "Particular": "F1 (7'-0\"x7'-0\")",
-                        "No": 3,
-                        "L (ft)": 7.0,
-                        "B (ft)": 7.0,
-                        "H (ft)": 0.5,
+                        "Particular": "G.L A to B",
+                        "No": 1,
+                        "L (ft)": 26.0,
+                        "B (ft)": 5.0,
+                        "H (ft)": 1.0,
                         "Deduction": 0.0,
+                    },
+                    {
+                        "Particular": "Deduction (Retaining Wall Area)",
+                        "No": 1,
+                        "L (ft)": 221.31,
+                        "B (ft)": 0.75,
+                        "H (ft)": 1.0,
+                        "Deduction": 165.98,
                     },
                 ]
             )
@@ -117,7 +135,7 @@ summary_data = []
 st.divider()
 
 
-# Helper function to render data editor dynamically based on unit type
+# Helper function to render data editor
 def render_item_editor(item, key_prefix):
     is_sqft = "Sqft" in item
     df_input = st.session_state.data_store.get(item, default_empty_df.copy())
@@ -128,11 +146,10 @@ def render_item_editor(item, key_prefix):
         "L (ft)": st.column_config.NumberColumn(min_value=0.0, format="%.2f"),
         "B (ft)": st.column_config.NumberColumn(min_value=0.0, format="%.2f"),
         "Deduction": st.column_config.NumberColumn(
-            min_value=0.0, format="%.2f"
+            min_value=0.0, format="%.2f", help="နှုတ်ရန်ရှိပါက ထည့်ပါ"
         ),
     }
 
-    # Hide or Disable H(ft) for Sqft items
     if is_sqft:
         disabled_cols = ["H (ft)"]
         col_config["H (ft)"] = st.column_config.NumberColumn(
@@ -165,7 +182,7 @@ def render_item_editor(item, key_prefix):
 
         temp_df = edited_df.copy()
         if is_sqft:
-            temp_df["H (ft)"] = "-"  # Clean display for summary
+            temp_df["H (ft)"] = "-"
         temp_df.insert(0, "Item Description", item)
         summary_data.append(temp_df)
 
@@ -173,7 +190,7 @@ def render_item_editor(item, key_prefix):
 # Render Views
 if view_type == "ကဏ္ဍအလိုက် ချုံ့/ချဲ့ စာရင်း (Expander)":
     for item in items_list:
-        with st.expander(f"📋 {item}", expanded=True):
+        with st.expander(f"📋 {item}", expanded=False):
             render_item_editor(item, "expander")
 else:
     tabs = st.tabs(items_list)
