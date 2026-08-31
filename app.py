@@ -36,12 +36,27 @@ items_list = [
     "8. Plinth Beam Concrete Work (Cuft)",
 ]
 
-# Initialize Session State Data Store for all items
+# Helper template dataframe
+default_empty_df = pd.DataFrame(
+    [
+        {
+            "Particular": "",
+            "No": 1,
+            "L (ft)": 0.0,
+            "B (ft)": 0.0,
+            "H (ft)": 0.0,
+            "Deduction": 0.0,
+        }
+    ]
+)
+
+# Initialize Session State Data Store properly
 if "data_store" not in st.session_state:
     st.session_state.data_store = {}
 
-    # Pre-fill initial items
-    for item in items_list:
+# Ensure every item exists in data_store to avoid KeyError
+for item in items_list:
+    if item not in st.session_state.data_store:
         if "3. Earthwork Excavation" in item:
             st.session_state.data_store[item] = pd.DataFrame(
                 [
@@ -93,18 +108,7 @@ if "data_store" not in st.session_state:
                 ]
             )
         else:
-            st.session_state.data_store[item] = pd.DataFrame(
-                [
-                    {
-                        "Particular": "",
-                        "No": 1,
-                        "L (ft)": 0.0,
-                        "B (ft)": 0.0,
-                        "H (ft)": 0.0,
-                        "Deduction": 0.0,
-                    }
-                ]
-            )
+            st.session_state.data_store[item] = default_empty_df.copy()
 
 
 def calculate_content(row):
@@ -115,7 +119,7 @@ def calculate_content(row):
     return round(total, 2)
 
 
-# View Mode Selection: Expanders or Tabs
+# View Mode Selection
 view_type = st.radio(
     "မြင်ကွင်းပုံစံ ရွေးချယ်ပါ -",
     ["ကဏ္ဍအလိုက် ချုံ့/ချဲ့ စာရင်း (Expander)", "စာမျက်နှာခွဲ စာရင်း (Tabs)"],
@@ -123,13 +127,15 @@ view_type = st.radio(
 )
 
 summary_data = []
-
 st.divider()
 
 if view_type == "ကဏ္ဍအလိုက် ချုံ့/ချဲ့ စာရင်း (Expander)":
     for item in items_list:
         with st.expander(f"📋 {item}", expanded=True):
-            df_input = st.session_state.data_store[item]
+            # Safe Retrieval using .get() to prevent KeyError
+            df_input = st.session_state.data_store.get(
+                item, default_empty_df.copy()
+            )
 
             edited_df = st.data_editor(
                 df_input,
@@ -178,7 +184,10 @@ else:
     for idx, item in enumerate(items_list):
         with tabs[idx]:
             st.subheader(item)
-            df_input = st.session_state.data_store[item]
+            # Safe Retrieval using .get() to prevent KeyError
+            df_input = st.session_state.data_store.get(
+                item, default_empty_df.copy()
+            )
 
             edited_df = st.data_editor(
                 df_input,
@@ -226,8 +235,6 @@ st.subheader("📊 Grand Total Summary & Export")
 
 if summary_data:
     full_sheet_df = pd.concat(summary_data, ignore_index=True)
-
-    # Clean display
     st.dataframe(full_sheet_df, use_container_width=True)
 
     csv = full_sheet_df.to_csv(index=False).encode("utf-8")
