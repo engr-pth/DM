@@ -73,7 +73,7 @@ default_empty_df = pd.DataFrame(
 if "data_store" not in st.session_state:
     st.session_state.data_store = {}
 
-# Active status for each item ("ထည့်တွက်မည်" or "ထည့်မတွက်ပါ")
+# Active status for each item (Default explicitly set to "ထည့်တွက်မည်")
 if "active_items" not in st.session_state:
     st.session_state.active_items = {item: "ထည့်တွက်မည်" for item in items_list}
 
@@ -119,14 +119,14 @@ st.divider()
 
 
 def render_item_editor(item, key_prefix):
-    # Two-button selection system using Radio Buttons in horizontal mode
+    # Ensure current state defaults to "ထည့်တွက်မည်"
+    current_status = st.session_state.active_items.get(item, "ထည့်တွက်မည်")
+    selected_index = 0 if current_status == "ထည့်တွက်မည်" else 1
+
     status_choice = st.radio(
         "တွက်ချက်မှုတွင် ပါဝင်မှုအခြေအနေ ရွေးချယ်ပါ -",
         ["ထည့်တွက်မည်", "ထည့်မတွက်ပါ"],
-        index=0
-        if st.session_state.active_items.get(item, "ထည့်တွက်မည်")
-        == "ထည့်တွက်မည်"
-        else 1,
+        index=selected_index,
         horizontal=True,
         key=f"radio_choice_{key_prefix}_{item}",
     )
@@ -156,7 +156,7 @@ def render_item_editor(item, key_prefix):
         )
         st.session_state.data_store[item] = edited_df
 
-        # Show totals only when "ထည့်တွက်မည်" is selected
+        # Calculate totals when "ထည့်တွက်မည်" is selected
         if is_included:
             grand_total = edited_df["Total Content"].sum()
             if "(Sqft)" in item:
