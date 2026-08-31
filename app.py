@@ -124,7 +124,7 @@ def render_item_editor(item, key_prefix):
 
     with col_chk:
         is_included = st.checkbox(
-            "Include in Total Calculation",
+            "Not Include in Total Calculation",
             value=st.session_state.active_items.get(item, True),
             key=f"inside_chk_{key_prefix}_{item}",
         )
