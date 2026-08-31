@@ -25,7 +25,7 @@ st.sidebar.divider()
 st.sidebar.markdown(f"**Project:** {project_name}")
 st.sidebar.markdown(f"**Location:** {location}")
 
-# Full Comprehensive Work Items List
+# Full Items List
 items_list = [
     "1. Site Cleaning Work (Sqft)",
     "2. Staking Works For Preparation of Foundation (Sqft)",
@@ -69,201 +69,40 @@ default_empty_df = pd.DataFrame(
     ]
 )
 
+# Global Session State Initializations
 if "data_store" not in st.session_state:
     st.session_state.data_store = {}
 
-# Set Up Initial Sample Data for Items 11 to 16
-if "11. Anti-Rust Painting Work (Sqft)" not in st.session_state.data_store:
-    st.session_state.data_store["11. Anti-Rust Painting Work (Sqft)"] = (
-        pd.DataFrame(
-            [
-                {
-                    "Particular": '6"x6"x(7mmx10mm) H Beam (6M)',
-                    "Nos (x)": 1,
-                    "Member (x)": 1,
-                    "Multiplier": 1,
-                    "L / Length (ft)": 36.16,
-                    "B / Width (ft)": 3.00,
-                    "H / Height (ft)": 0.0,
-                    "Deduction": 0.0,
-                    "Direct Total": 108.48,
-                },
-                {
-                    "Particular": '6"x3"x4mm thk; I Beam (6M)',
-                    "Nos (x)": 1,
-                    "Member (x)": 1,
-                    "Multiplier": 1,
-                    "L / Length (ft)": 32.50,
-                    "B / Width (ft)": 2.00,
-                    "H / Height (ft)": 0.0,
-                    "Deduction": 0.0,
-                    "Direct Total": 65.00,
-                },
-                {
-                    "Particular": '5"x2"x2.3mm thk; Hollow (6M)',
-                    "Nos (x)": 1,
-                    "Member (x)": 1,
-                    "Multiplier": 1,
-                    "L / Length (ft)": 532.40,
-                    "B / Width (ft)": 1.50,
-                    "H / Height (ft)": 0.0,
-                    "Deduction": 0.0,
-                    "Direct Total": 799.66,
-                },
-                {
-                    "Particular": '2"x2"x1.3mm thk; Hollow',
-                    "Nos (x)": 1,
-                    "Member (x)": 1,
-                    "Multiplier": 1,
-                    "L / Length (ft)": 1358.00,
-                    "B / Width (ft)": 0.67,
-                    "H / Height (ft)": 0.0,
-                    "Deduction": 0.0,
-                    "Direct Total": 907.14,
-                },
-                {
-                    "Particular": "Eave Board Frame",
-                    "Nos (x)": 35,
-                    "Member (x)": 1,
-                    "Multiplier": 1,
-                    "L / Length (ft)": 20.00,
-                    "B / Width (ft)": 0.33,
-                    "H / Height (ft)": 0.0,
-                    "Deduction": 0.0,
-                    "Direct Total": 233.33,
-                },
-            ]
-        )
-    )
+if "active_items" not in st.session_state:
+    # Default: All items are included initially
+    st.session_state.active_items = {item: True for item in items_list}
 
-if (
-    "12. 0.4mm thk; Amcan Roofing Sheet Work (Sqft)"
-    not in st.session_state.data_store
-):
-    st.session_state.data_store[
-        "12. 0.4mm thk; Amcan Roofing Sheet Work (Sqft)"
-    ] = pd.DataFrame(
-        [
-            {
-                "Particular": "Car Garage (Rafter 1)",
-                "Nos (x)": 1,
-                "Member (x)": 1,
-                "Multiplier": 1,
-                "L / Length (ft)": 9.92,
-                "B / Width (ft)": 9.00,
-                "H / Height (ft)": 0.0,
-                "Deduction": 0.0,
-                "Direct Total": 89.28,
-            },
-            {
-                "Particular": "Car Garage (Rafter 2)",
-                "Nos (x)": 1,
-                "Member (x)": 1,
-                "Multiplier": 1,
-                "L / Length (ft)": 19.67,
-                "B / Width (ft)": 9.00,
-                "H / Height (ft)": 0.0,
-                "Deduction": 0.0,
-                "Direct Total": 177.03,
-            },
-            {
-                "Particular": "Living Room (Section 1)",
-                "Nos (x)": 1,
-                "Member (x)": 1,
-                "Multiplier": 1,
-                "L / Length (ft)": 12.33,
-                "B / Width (ft)": 19.50,
-                "H / Height (ft)": 0.0,
-                "Deduction": 0.0,
-                "Direct Total": 240.44,
-            },
-            {
-                "Particular": "Living Room (Section 2)",
-                "Nos (x)": 1,
-                "Member (x)": 1,
-                "Multiplier": 1,
-                "L / Length (ft)": 17.60,
-                "B / Width (ft)": 19.50,
-                "H / Height (ft)": 0.0,
-                "Deduction": 0.0,
-                "Direct Total": 343.20,
-            },
-            {
-                "Particular": "Main Building Roof",
-                "Nos (x)": 1,
-                "Member (x)": 1,
-                "Multiplier": 1,
-                "L / Length (ft)": 16.50,
-                "B / Width (ft)": 37.00,
-                "H / Height (ft)": 0.0,
-                "Deduction": 0.0,
-                "Direct Total": 610.50,
-            },
-        ]
-    )
-
-if (
-    "16. Bamboo Scaffolding Work (Sqft)"
-    not in st.session_state.data_store
-):
-    st.session_state.data_store["16. Bamboo Scaffolding Work (Sqft)"] = (
-        pd.DataFrame(
-            [
-                {
-                    "Particular": "Front Side",
-                    "Nos (x)": 1,
-                    "Member (x)": 1,
-                    "Multiplier": 1,
-                    "L / Length (ft)": 45.00,
-                    "B / Width (ft)": 29.50,
-                    "H / Height (ft)": 0.0,
-                    "Deduction": 0.0,
-                    "Direct Total": 1327.50,
-                },
-                {
-                    "Particular": "Back Side",
-                    "Nos (x)": 1,
-                    "Member (x)": 1,
-                    "Multiplier": 1,
-                    "L / Length (ft)": 45.00,
-                    "B / Width (ft)": 29.50,
-                    "H / Height (ft)": 0.0,
-                    "Deduction": 0.0,
-                    "Direct Total": 1327.50,
-                },
-                {
-                    "Particular": "Right Side",
-                    "Nos (x)": 1,
-                    "Member (x)": 1,
-                    "Multiplier": 1,
-                    "L / Length (ft)": 60.50,
-                    "B / Width (ft)": 29.50,
-                    "H / Height (ft)": 0.0,
-                    "Deduction": 0.0,
-                    "Direct Total": 1784.75,
-                },
-                {
-                    "Particular": "Left Side",
-                    "Nos (x)": 1,
-                    "Member (x)": 1,
-                    "Multiplier": 1,
-                    "L / Length (ft)": 60.50,
-                    "B / Width (ft)": 27.50,
-                    "H / Height (ft)": 0.0,
-                    "Deduction": 0.0,
-                    "Direct Total": 1663.75,
-                },
-            ]
-        )
-    )
-
-# Generic Data Initialization
+# Initialize data store for each item
 for item in items_list:
     if item not in st.session_state.data_store:
         st.session_state.data_store[item] = default_empty_df.copy()
 
+# Sidebar Multi-Select / Checkbox Control to Include/Exclude Items
+st.sidebar.divider()
+st.sidebar.subheader("⚙️ Select Items to Include")
 
-# Volume / Area / Length Calculation Engine
+# Quick action buttons for toggle
+col_btn1, col_btn2 = st.sidebar.columns(2)
+if col_btn1.button("Select All", use_container_width=True):
+    for k in st.session_state.active_items:
+        st.session_state.active_items[k] = True
+if col_btn2.button("Deselect All", use_container_width=True):
+    for k in st.session_state.active_items:
+        st.session_state.active_items[k] = False
+
+# Individual item checkboxes in Sidebar
+for item in items_list:
+    st.session_state.active_items[item] = st.sidebar.checkbox(
+        item, value=st.session_state.active_items[item], key=f"chk_{item}"
+    )
+
+
+# Calculation Function
 def calculate_item_content(row, item_name):
     if "Direct Total" in row and row["Direct Total"] > 0:
         return round(float(row["Direct Total"]), 2)
@@ -289,6 +128,7 @@ def calculate_item_content(row, item_name):
     return round(total, 2)
 
 
+# View Mode Selection
 view_type = st.radio(
     "မြင်ကွင်းပုံစံ ရွေးချယ်ပါ -",
     ["ကဏ္ဍအလိုက် ချုံ့/ချဲ့ စာရင်း (Expander)", "စာမျက်နှာခွဲ စာရင်း (Tabs)"],
@@ -300,6 +140,14 @@ st.divider()
 
 
 def render_item_editor(item, key_prefix):
+    is_active = st.session_state.active_items.get(item, True)
+
+    # Top status indicator for inclusion
+    if not is_active:
+        st.warning(
+            "⚠️ ဤ Item ကို တွက်ချက်မှုမှ ဖယ်ထုတ်ထားပါသည် (Excluded from Total Calculation)"
+        )
+
     df_input = st.session_state.data_store.get(item, default_empty_df.copy())
 
     edited_df = st.data_editor(
@@ -315,33 +163,50 @@ def render_item_editor(item, key_prefix):
         )
         st.session_state.data_store[item] = edited_df
 
-        grand_total = edited_df["Total Content"].sum()
+        # If Item is ACTIVE, calculate totals and append to Summary Sheet
+        if is_active:
+            grand_total = edited_df["Total Content"].sum()
 
-        if "(Sqft)" in item:
-            st.caption(f"**{item} Total Area:** `{grand_total:,.2f} Sqft`")
-        elif "(Cuft)" in item:
-            st.caption(f"**{item} Total Volume:** `{grand_total:,.2f} Cuft`")
-        else:
-            st.caption(f"**{item} Total Quantity:** `{grand_total:,.2f}`")
+            if "(Sqft)" in item:
+                st.caption(f"**{item} Total Area:** `{grand_total:,.2f} Sqft`")
+            elif "(Cuft)" in item:
+                st.caption(
+                    f"**{item} Total Volume:** `{grand_total:,.2f} Cuft`"
+                )
+            else:
+                st.caption(f"**{item} Total Quantity:** `{grand_total:,.2f}`")
 
-        temp_df = edited_df.copy()
-        temp_df.insert(0, "Item Description", item)
-        summary_data.append(temp_df)
+            temp_df = edited_df.copy()
+            temp_df.insert(0, "Item Description", item)
+            summary_data.append(temp_df)
 
 
+# Render Selected View Mode
 if view_type == "ကဏ္ဍအလိုက် ချုံ့/ချဲ့ စာရင်း (Expander)":
     for item in items_list:
-        with st.expander(f"📋 {item}", expanded=False):
+        is_active = st.session_state.active_items.get(item, True)
+        title_prefix = "✅" if is_active else "❌ (Excluded)"
+        with st.expander(f"{title_prefix} {item}", expanded=False):
             render_item_editor(item, "expander")
 else:
-    tabs = st.tabs(items_list)
+    tabs = st.tabs(
+        [
+            (
+                f"✅ {it[:15]}..."
+                if st.session_state.active_items.get(it, True)
+                else f"❌ {it[:15]}..."
+            )
+            for it in items_list
+        ]
+    )
     for idx, item in enumerate(items_list):
         with tabs[idx]:
             st.subheader(item)
             render_item_editor(item, "tab")
 
+# Summary Section
 st.divider()
-st.subheader("📊 Grand Total Summary & Export")
+st.subheader("📊 Active Grand Total Summary & Export")
 
 if summary_data:
     full_sheet_df = pd.concat(summary_data, ignore_index=True)
@@ -349,8 +214,10 @@ if summary_data:
 
     csv = full_sheet_df.to_csv(index=False).encode("utf-8")
     st.download_button(
-        label="📄 Download Complete Measurement Sheet (CSV)",
+        label="📄 Download Selected Items Measurement Sheet (CSV)",
         data=csv,
-        file_name=f"{project_name}_Full_Measurement_Sheet.csv",
+        file_name=f"{project_name}_Selected_Measurement_Sheet.csv",
         mime="text/csv",
     )
+else:
+    st.info("⚠️ မည်သည့် Item မှ ရွေးချယ်မထားပါ (All items are excluded).")
