@@ -1,3 +1,4 @@
+import math
 import pandas as pd
 import streamlit as st
 
@@ -24,7 +25,7 @@ st.sidebar.divider()
 st.sidebar.markdown(f"**Project:** {project_name}")
 st.sidebar.markdown(f"**Location:** {location}")
 
-# Comprehensive Work Items List
+# Items List
 items_list = [
     "1. Site Cleaning Work (Sqft)",
     "2. Staking Works For Preparation of Foundation (Sqft)",
@@ -36,157 +37,177 @@ items_list = [
     "7. (b) 6\"thk; Sandfilling Work (Cuft)",
     "7. (c) Plastic Sheet Laying Work (Sqft)",
     "7. (d) 4.5\"thk; (1:3:6) Concrete Work (Cuft)",
-    "8. (i) (a) Footing (1:2:4) Reinforced Concrete Work (Cuft)",
-    "8. (i) (b) Footing Formwork (Sqft)",
-    "8. (i) (c) Footing Rebar Work (16mmØ) (ft)",
-    "8. (ii) (a) Column (1:2:4) Reinforced Concrete Work (Cuft)",
-    "8. (ii) (b) Column Formwork (Sqft)",
-    "8. (ii) (c) Column Rebar Work (16mmØ) (ft)",
-    "8. (ii) (c) Column Rebar Work (10mmØ) (ft)",
-    "8. (iii) (a) Beam (1:2:4) Reinforced Concrete Work (Cuft)",
-    "8. (iii) (b) Beam Formwork (Sqft)",
-    "8. (iii) (c) Beam Rebar Work (16mmØ) (ft)",
-    "8. (iii) (c) Beam Rebar Work (10mmØ) (ft)",
-    "8. (iv) (a) Slab (1:2:4) Reinforced Concrete Work (Cuft)",
-    "8. (iv) (b) Slab Formwork (Sqft)",
-    "8. (iv) (c) Slab Rebar Work (10mmØ) (ft)",
-    "8. (iv) (c) Slab Rebar Work (12mmØ) (ft)",
-    "8. (v) (a) Staircase (1:2:4) Reinforced Concrete Work (Cuft)",
-    "8. (v) (b) Staircase Formwork (Sqft)",
-    "8. (v) (c) Staircase Rebar Work (10mmØ) (ft)",
-    "8. (v) (c) Staircase Rebar Work (12mmØ) (ft)",
+    "8. (i) Footing Concrete & Rebar Work",
+    "8. (ii) Column Concrete & Rebar Work",
+    "8. (iii) Beam Concrete & Rebar Work",
+    "8. (iv) Slab Concrete & Rebar Work",
+    "8. (v) Staircase Concrete & Rebar Work",
     "9. Backfilling Work (Cuft)",
+    "10. Roofing Structure Work (Sqft / Rft)",
 ]
 
-# Base Empty Template Structure
+# Base Empty Template
 default_empty_df = pd.DataFrame(
     [
         {
+            "Section / Location": "",
             "Particular": "",
             "Nos (x)": 1,
             "Member (x)": 1,
             "Multiplier": 1,
             "L / Length (ft)": 0.0,
-            "B (ft)": 0.0,
-            "H (ft)": 0.0,
             "Deduction": 0.0,
+            "Direct Total (ft)": 0.0,
         }
     ]
 )
 
-# Initialize Session State Data Store
 if "data_store" not in st.session_state:
     st.session_state.data_store = {}
 
-# Populate default/initial data
+# Set Up Initial Data for Roofing Structure
+if "10. Roofing Structure Work (Sqft / Rft)" not in st.session_state.data_store:
+    st.session_state.data_store["10. Roofing Structure Work (Sqft / Rft)"] = (
+        pd.DataFrame(
+            [
+                # H Beam 6"x6"
+                {
+                    "Section / Location": "Shrine & Car Garage",
+                    "Particular": 'H Beam 6"x6" (G.L-2\')',
+                    "Nos (x)": 1,
+                    "Member (x)": 1,
+                    "Multiplier": 2,
+                    "L / Length (ft)": 3.50,
+                    "Deduction": 0.0,
+                    "Direct Total (ft)": 0.0,
+                },
+                {
+                    "Section / Location": "Shrine & Car Garage",
+                    "Particular": 'H Beam 6"x6" (G.L-4)',
+                    "Nos (x)": 1,
+                    "Member (x)": 1,
+                    "Multiplier": 2,
+                    "L / Length (ft)": 10.00,
+                    "Deduction": 0.0,
+                    "Direct Total (ft)": 0.0,
+                },
+                {
+                    "Section / Location": "Living Room",
+                    "Particular": 'H Beam 6"x6" (G.L-2\')',
+                    "Nos (x)": 1,
+                    "Member (x)": 1,
+                    "Multiplier": 2,
+                    "L / Length (ft)": 4.58,
+                    "Deduction": 0.0,
+                    "Direct Total (ft)": 0.0,
+                },
+                # I Beam 6"x3"
+                {
+                    "Section / Location": "Shrine & Car Garage",
+                    "Particular": 'I Beam 6"x3" (G.L-2\')',
+                    "Nos (x)": 1,
+                    "Member (x)": 1,
+                    "Multiplier": 1,
+                    "L / Length (ft)": 25.50,
+                    "Deduction": 0.0,
+                    "Direct Total (ft)": 0.0,
+                },
+                {
+                    "Section / Location": "Shrine & Car Garage",
+                    "Particular": 'I Beam 6"x3" (G.L-4)',
+                    "Nos (x)": 1,
+                    "Member (x)": 1,
+                    "Multiplier": 1,
+                    "L / Length (ft)": 7.00,
+                    "Deduction": 0.0,
+                    "Direct Total (ft)": 0.0,
+                },
+                # Prop Column 5"x2"x2.3mm
+                {
+                    "Section / Location": "Main Building Prop Column",
+                    "Particular": 'Hollow 5"x2"x2.3mm (G.L-E)',
+                    "Nos (x)": 1,
+                    "Member (x)": 1,
+                    "Multiplier": 1,
+                    "L / Length (ft)": 6.00,
+                    "Deduction": 0.0,
+                    "Direct Total (ft)": 0.0,
+                },
+                {
+                    "Section / Location": "Main Building Prop Column",
+                    "Particular": 'Hollow 5"x2"x2.3mm (Bet G.L-1 & 2, 2\')',
+                    "Nos (x)": 4,
+                    "Member (x)": 1,
+                    "Multiplier": 1,
+                    "L / Length (ft)": 5.00,
+                    "Deduction": 0.0,
+                    "Direct Total (ft)": 0.0,
+                },
+                # Rafter
+                {
+                    "Section / Location": "Car Garage Rafter",
+                    "Particular": 'Rafter Hollow 5"x2"x2.3mm',
+                    "Nos (x)": 1,
+                    "Member (x)": 1,
+                    "Multiplier": 3,
+                    "L / Length (ft)": 19.67,
+                    "Deduction": 0.0,
+                    "Direct Total (ft)": 0.0,
+                },
+                {
+                    "Section / Location": "Main Building Rafter",
+                    "Particular": 'Rafter Hollow 5"x2"x2.3mm (G.L-A~C)',
+                    "Nos (x)": 1,
+                    "Member (x)": 1,
+                    "Multiplier": 4,
+                    "L / Length (ft)": 33.00,
+                    "Deduction": 0.0,
+                    "Direct Total (ft)": 0.0,
+                },
+                # Purlin
+                {
+                    "Section / Location": "Car Garage Purlin",
+                    "Particular": 'Purlin 2"x2"x1.3mm Hollow @ 2ft c/c',
+                    "Nos (x)": 15,
+                    "Member (x)": 1,
+                    "Multiplier": 1,
+                    "L / Length (ft)": 8.50,
+                    "Deduction": 0.0,
+                    "Direct Total (ft)": 0.0,
+                },
+                {
+                    "Section / Location": "Main Building Vertical Purlin",
+                    "Particular": 'Purlin 2"x2"x1.3mm Hollow',
+                    "Nos (x)": 1,
+                    "Member (x)": 1,
+                    "Multiplier": 14,
+                    "L / Length (ft)": 37.00,
+                    "Deduction": 0.0,
+                    "Direct Total (ft)": 0.0,
+                },
+            ]
+        )
+    )
+
+# Generic Data Initialization for other items
 for item in items_list:
     if item not in st.session_state.data_store:
-        if "9. Backfilling Work" in item:
-            st.session_state.data_store[item] = pd.DataFrame(
-                [
-                    {
-                        "Particular": "Excavated Volume",
-                        "Nos (x)": 1,
-                        "Member (x)": 1,
-                        "Multiplier": 1,
-                        "L / Length (ft)": 0.0,
-                        "B (ft)": 0.0,
-                        "H (ft)": 0.0,
-                        "Deduction": 0.0,
-                        "Direct Volume (Cuft)": 6253.30,
-                    },
-                    {
-                        "Particular": "Hardcore Volume (-)",
-                        "Nos (x)": 1,
-                        "Member (x)": 1,
-                        "Multiplier": 1,
-                        "L / Length (ft)": 0.0,
-                        "B (ft)": 0.0,
-                        "H (ft)": 0.0,
-                        "Deduction": 0.0,
-                        "Direct Volume (Cuft)": 513.57,
-                    },
-                    {
-                        "Particular": "Lean Concrete Volume (-)",
-                        "Nos (x)": 1,
-                        "Member (x)": 1,
-                        "Multiplier": 1,
-                        "L / Length (ft)": 0.0,
-                        "B (ft)": 0.0,
-                        "H (ft)": 0.0,
-                        "Deduction": 0.0,
-                        "Direct Volume (Cuft)": 291.07,
-                    },
-                    {
-                        "Particular": "Footing Concrete Volume (-)",
-                        "Nos (x)": 1,
-                        "Member (x)": 1,
-                        "Multiplier": 1,
-                        "L / Length (ft)": 0.0,
-                        "B (ft)": 0.0,
-                        "H (ft)": 0.0,
-                        "Deduction": 0.0,
-                        "Direct Volume (Cuft)": 611.00,
-                    },
-                    {
-                        "Particular": "Short Column Concrete Volume (-)",
-                        "Nos (x)": 1,
-                        "Member (x)": 1,
-                        "Multiplier": 1,
-                        "L / Length (ft)": 0.0,
-                        "B (ft)": 0.0,
-                        "H (ft)": 0.0,
-                        "Deduction": 0.0,
-                        "Direct Volume (Cuft)": 90.68,
-                    },
-                    {
-                        "Particular": "Retaining Wall Volume (-)",
-                        "Nos (x)": 1,
-                        "Member (x)": 1,
-                        "Multiplier": 1,
-                        "L / Length (ft)": 0.0,
-                        "B (ft)": 0.0,
-                        "H (ft)": 0.0,
-                        "Deduction": 0.0,
-                        "Direct Volume (Cuft)": 497.95,
-                    },
-                ]
-            )
-        else:
-            st.session_state.data_store[item] = default_empty_df.copy()
+        st.session_state.data_store[item] = default_empty_df.copy()
 
 
-# Calculation Logic
-def calculate_content(row, item_type):
-    if "Direct Volume (Cuft)" in row and row["Direct Volume (Cuft)"] > 0:
-        return round(float(row["Direct Volume (Cuft)"]), 2)
-
+def calculate_roofing(row):
+    if "Direct Total (ft)" in row and row["Direct Total (ft)"] > 0:
+        return round(float(row["Direct Total (ft)"]), 2)
     no = (
         row.get("Nos (x)", 1)
         * row.get("Member (x)", 1)
         * row.get("Multiplier", 1)
     )
     length = row.get("L / Length (ft)", 0.0)
-    breadth = row.get("B (ft)", 0.0)
-    height = row.get("H (ft)", 0.0)
     deduction = row.get("Deduction", 0.0)
-
-    if "(ft)" in item_type:
-        total = (no * length) - deduction
-    elif "Sqft" in item_type:
-        b_val = (
-            breadth
-            if breadth > 0
-            else (height if height > 0 else 1.0)
-        )
-        total = (no * length * b_val) - deduction
-    else:
-        total = (no * length * breadth * height) - deduction
-
-    return round(total, 2)
+    return round((no * length) - deduction, 2)
 
 
-# View Mode Selection
 view_type = st.radio(
     "မြင်ကွင်းပုံစံ ရွေးချယ်ပါ -",
     ["ကဏ္ဍအလိုက် ချုံ့/ချဲ့ စာရင်း (Expander)", "စာမျက်နှာခွဲ စာရင်း (Tabs)"],
@@ -197,102 +218,49 @@ summary_data = []
 st.divider()
 
 
-# Dynamic Editor Renderer
 def render_item_editor(item, key_prefix):
     df_input = st.session_state.data_store.get(item, default_empty_df.copy())
 
-    col_config = {
-        "Nos (x)": st.column_config.NumberColumn(
-            min_value=1, step=1, default=1
-        ),
-        "Member (x)": st.column_config.NumberColumn(
-            min_value=1, step=1, default=1
-        ),
-        "Multiplier": st.column_config.NumberColumn(
-            min_value=1, step=1, default=1
-        ),
-        "L / Length (ft)": st.column_config.NumberColumn(
-            min_value=0.0, format="%.3f"
-        ),
-        "B (ft)": st.column_config.NumberColumn(min_value=0.0, format="%.3f"),
-        "H (ft)": st.column_config.NumberColumn(min_value=0.0, format="%.3f"),
-        "Deduction": st.column_config.NumberColumn(
-            min_value=0.0, format="%.2f"
-        ),
-    }
-
-    if "Backfilling Work" in item:
-        col_config["Direct Volume (Cuft)"] = st.column_config.NumberColumn(
-            min_value=0.0, format="%.2f"
+    if "Roofing Structure Work" in item:
+        edited_df = st.data_editor(
+            df_input,
+            num_rows="dynamic",
+            use_container_width=True,
+            key=f"{key_prefix}_{item}",
         )
-
-    disabled_cols = []
-    if "(ft)" in item:
-        disabled_cols = ["B (ft)", "H (ft)"]
-
-    edited_df = st.data_editor(
-        df_input,
-        num_rows="dynamic",
-        use_container_width=True,
-        key=f"{key_prefix}_{item}",
-        column_config=col_config,
-        disabled=disabled_cols,
-    )
-
-    if not edited_df.empty:
-        edited_df["Content"] = edited_df.apply(
-            lambda r: calculate_content(r, item), axis=1
-        )
-        st.session_state.data_store[item] = edited_df
-
-        if "Backfilling Work" in item:
-            excavated_v = edited_df[
-                edited_df["Particular"].str.contains(
-                    "Excavated", case=False, na=False
-                )
-            ]["Content"].sum()
-            deductions_v = edited_df[
-                ~edited_df["Particular"].str.contains(
-                    "Excavated", case=False, na=False
-                )
-            ]["Content"].sum()
-
-            backfill_v = excavated_v - deductions_v
-            disposal_v = deductions_v
-
-            st.metric("📦 Backfill Volume (မြေပြန်ဖို့ထုထည်)", f"{backfill_v:,.2f} Cuft")
-            st.info(
-                f"🚛 **Disposal Volume (စွန့်ထုတ်ရမည့် မြေပိုထုထည်):**"
-                f" `{disposal_v:,.2f} Cuft`"
+        if not edited_df.empty:
+            edited_df["Content (Rft)"] = edited_df.apply(
+                calculate_roofing, axis=1
             )
-        elif "(ft)" in item:
-            total_qty = edited_df["Content"].sum()
-            st.caption(f"**{item} - Total Length:** `{total_qty:,.2f} ft`")
-            if "16mmØ" in item:
-                st.info(
-                    f"💡 **16mmØ Rebar Weight:** `{total_qty/2084.42:,.3f} Ton`"
-                )
-            elif "12mmØ" in item:
-                st.info(
-                    f"💡 **12mmØ Rebar Weight:** `{total_qty/3461.30:,.3f} Ton`"
-                )
-            elif "10mmØ" in item:
-                st.info(
-                    f"💡 **10mmØ Rebar Weight:** `{total_qty/5304.00:,.3f} Ton`"
-                )
-        elif "Sqft" in item:
-            total_qty = edited_df["Content"].sum()
-            st.caption(f"**{item} - Total Area:** `{total_qty:,.2f} Sqft`")
-        else:
-            total_qty = edited_df["Content"].sum()
-            st.caption(f"**{item} - Total Volume:** `{total_qty:,.2f} Cuft`")
+            st.session_state.data_store[item] = edited_df
 
-        temp_df = edited_df.copy()
-        temp_df.insert(0, "Item Description", item)
-        summary_data.append(temp_df)
+            # Calculate Beam / Structural Summaries
+            total_rft = edited_df["Content (Rft)"].sum()
+            total_6m_nos = math.ceil(
+                total_rft / 19.685
+            )  # Convert Rft to 6M standard length numbers
+
+            c1, c2 = st.columns(2)
+            c1.metric("📐 Total Length (စုစုပေါင်းအလျား)", f"{total_rft:,.2f} Rft")
+            c2.metric("📦 Estimated 6M Pipe/Beam Count", f"{total_6m_nos:,} Nos")
+
+            temp_df = edited_df.copy()
+            temp_df.insert(0, "Item Description", item)
+            summary_data.append(temp_df)
+    else:
+        edited_df = st.data_editor(
+            df_input,
+            num_rows="dynamic",
+            use_container_width=True,
+            key=f"{key_prefix}_{item}",
+        )
+        if not edited_df.empty:
+            st.session_state.data_store[item] = edited_df
+            temp_df = edited_df.copy()
+            temp_df.insert(0, "Item Description", item)
+            summary_data.append(temp_df)
 
 
-# Render Selected View
 if view_type == "ကဏ္ဍအလိုက် ချုံ့/ချဲ့ စာရင်း (Expander)":
     for item in items_list:
         with st.expander(f"📋 {item}", expanded=False):
@@ -304,7 +272,6 @@ else:
             st.subheader(item)
             render_item_editor(item, "tab")
 
-# Export Summary Section
 st.divider()
 st.subheader("📊 Grand Total Summary & Export")
 
