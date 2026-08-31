@@ -8,9 +8,11 @@ st.set_page_config(
 )
 
 st.title("🏗️ Detail Measurement & Estimate Calculator")
-st.write("အဆောက်အအုံဆောက်လုပ်ရေးအတွက် အသေးစိတ် ပမာဏတွက်ချက်မှုဇယား")
+st.write(
+    "အဆောက်အအုံဆောက်လုပ်ရေးအတွက် အသေးစိတ် ပမာဏတွက်ချက်မှုဇယား (Full Measurement Sheet)"
+)
 
-# Project Info Inputs
+# Sidebar - Project Details
 st.sidebar.header("📌 Project Details")
 project_name = st.sidebar.text_input(
     "Project Name", "Two Storeyed RCC Building"
@@ -22,106 +24,89 @@ st.sidebar.divider()
 st.sidebar.markdown(f"**Project:** {project_name}")
 st.sidebar.markdown(f"**Location:** {location}")
 
-# Items setup
+# All Work Items List
 items_list = [
     "1. Site Cleaning Work (Sqft)",
     "2. Staking Works For Preparation of Foundation (Sqft)",
     "3. Earthwork Excavation For Foundation (Cuft)",
     "4. Hardcore With Sand Filling Work (Cuft)",
+    "5. Lean Concrete (1:4:8) Work (Cuft)",
+    "6. Reinforced Concrete Footing Work (Cuft)",
+    "7. Column Stump Concrete Work (Cuft)",
+    "8. Plinth Beam Concrete Work (Cuft)",
 ]
 
-selected_item = st.selectbox("လုပ်ငန်းစဉ် အမျိုးအစား ကိုရွေးချယ်ပါ -", items_list)
-
-# Initial sample templates for input dataframe
+# Initialize Session State Data Store for all items
 if "data_store" not in st.session_state:
-    st.session_state.data_store = {
-        "3. Earthwork Excavation For Foundation (Cuft)": pd.DataFrame(
-            [
-                {
-                    "Particular": "F1 (7'-0\"x7'-0\")",
-                    "No": 3,
-                    "L (ft)": 8.0,
-                    "B (ft)": 8.0,
-                    "H (ft)": 5.0,
-                    "Deduction": 0.0,
-                },
-                {
-                    "Particular": "F2 (6'-0\"x6'-0\")",
-                    "No": 5,
-                    "L (ft)": 7.0,
-                    "B (ft)": 7.0,
-                    "H (ft)": 5.0,
-                    "Deduction": 0.0,
-                },
-                {
-                    "Particular": "F3 (5'-0\"x5'-0\")",
-                    "No": 9,
-                    "L (ft)": 6.0,
-                    "B (ft)": 6.0,
-                    "H (ft)": 5.0,
-                    "Deduction": 0.0,
-                },
-            ]
-        ),
-        "4. Hardcore With Sand Filling Work (Cuft)": pd.DataFrame(
-            [
-                {
-                    "Particular": "F1 (7'-0\"x7'-0\")",
-                    "No": 3,
-                    "L (ft)": 7.0,
-                    "B (ft)": 7.0,
-                    "H (ft)": 0.5,
-                    "Deduction": 0.0,
-                },
-                {
-                    "Particular": "F2 (6'-0\"x6'-0\")",
-                    "No": 5,
-                    "L (ft)": 6.0,
-                    "B (ft)": 6.0,
-                    "H (ft)": 0.5,
-                    "Deduction": 0.0,
-                },
-            ]
-        ),
-    }
+    st.session_state.data_store = {}
 
-# Ensure dataframe exists for selected item
-if selected_item not in st.session_state.data_store:
-    st.session_state.data_store[selected_item] = pd.DataFrame(
-        [
-            {
-                "Particular": "",
-                "No": 1,
-                "L (ft)": 0.0,
-                "B (ft)": 0.0,
-                "H (ft)": 0.0,
-                "Deduction": 0.0,
-            }
-        ]
-    )
+    # Pre-fill initial items
+    for item in items_list:
+        if "3. Earthwork Excavation" in item:
+            st.session_state.data_store[item] = pd.DataFrame(
+                [
+                    {
+                        "Particular": "F1 (7'-0\"x7'-0\")",
+                        "No": 3,
+                        "L (ft)": 8.0,
+                        "B (ft)": 8.0,
+                        "H (ft)": 5.0,
+                        "Deduction": 0.0,
+                    },
+                    {
+                        "Particular": "F2 (6'-0\"x6'-0\")",
+                        "No": 5,
+                        "L (ft)": 7.0,
+                        "B (ft)": 7.0,
+                        "H (ft)": 5.0,
+                        "Deduction": 0.0,
+                    },
+                    {
+                        "Particular": "F3 (5'-0\"x5'-0\")",
+                        "No": 9,
+                        "L (ft)": 6.0,
+                        "B (ft)": 6.0,
+                        "H (ft)": 5.0,
+                        "Deduction": 0.0,
+                    },
+                ]
+            )
+        elif "4. Hardcore With Sand" in item:
+            st.session_state.data_store[item] = pd.DataFrame(
+                [
+                    {
+                        "Particular": "F1 (7'-0\"x7'-0\")",
+                        "No": 3,
+                        "L (ft)": 7.0,
+                        "B (ft)": 7.0,
+                        "H (ft)": 0.5,
+                        "Deduction": 0.0,
+                    },
+                    {
+                        "Particular": "F2 (6'-0\"x6'-0\")",
+                        "No": 5,
+                        "L (ft)": 6.0,
+                        "B (ft)": 6.0,
+                        "H (ft)": 0.5,
+                        "Deduction": 0.0,
+                    },
+                ]
+            )
+        else:
+            st.session_state.data_store[item] = pd.DataFrame(
+                [
+                    {
+                        "Particular": "",
+                        "No": 1,
+                        "L (ft)": 0.0,
+                        "B (ft)": 0.0,
+                        "H (ft)": 0.0,
+                        "Deduction": 0.0,
+                    }
+                ]
+            )
 
-st.subheader(f"📝 Measurement Data Entry: {selected_item}")
 
-# Editable Table Input
-edited_df = st.data_editor(
-    st.session_state.data_store[selected_item],
-    num_rows="dynamic",
-    use_container_width=True,
-    column_config={
-        "No": st.column_config.NumberColumn(min_value=1, step=1, default=1),
-        "L (ft)": st.column_config.NumberColumn(min_value=0.0, format="%.2f"),
-        "B (ft)": st.column_config.NumberColumn(min_value=0.0, format="%.2f"),
-        "H (ft)": st.column_config.NumberColumn(
-            min_value=0.0, format="%.2f", help="Sqft အတွက်ဖြစ်ပါက 1 ဟုထားပါ"
-        ),
-        "Deduction": st.column_config.NumberColumn(
-            min_value=0.0, format="%.2f"
-        ),
-    },
-)
-
-# Calculate Content
-# If Sqft, multiplier for H is treated as 1 if H=0
 def calculate_content(row):
     h_val = row["H (ft)"] if row["H (ft)"] > 0 else 1.0
     total = (
@@ -130,41 +115,125 @@ def calculate_content(row):
     return round(total, 2)
 
 
-if not edited_df.empty:
-    edited_df["Content"] = edited_df.apply(calculate_content, axis=1)
-    st.session_state.data_store[selected_item] = edited_df
+# View Mode Selection: Expanders or Tabs
+view_type = st.radio(
+    "မြင်ကွင်းပုံစံ ရွေးချယ်ပါ -",
+    ["ကဏ္ဍအလိုက် ချုံ့/ချဲ့ စာရင်း (Expander)", "စာမျက်နှာခွဲ စာရင်း (Tabs)"],
+    horizontal=True,
+)
 
-    st.subheader("📊 Calculation Summary")
-    st.dataframe(edited_df, use_container_width=True)
+summary_data = []
 
-    item_total = edited_df["Content"].sum()
-    unit = "Sqft" if "Sqft" in selected_item else "Cuft"
-
-    st.metric(
-        label=f"Total Quantity for [{selected_item}]",
-        value=f"{item_total:,.2f} {unit}",
-    )
-
-# Export Functionality
 st.divider()
-st.subheader("📥 Export Summary Data")
 
-# Combine all data
-all_records = []
-for item_name, df_item in st.session_state.data_store.items():
-    if not df_item.empty:
-        temp_df = df_item.copy()
-        temp_df["Content"] = temp_df.apply(calculate_content, axis=1)
-        temp_df["Item Description"] = item_name
-        all_records.append(temp_df)
+if view_type == "ကဏ္ဍအလိုက် ချုံ့/ချဲ့ စာရင်း (Expander)":
+    for item in items_list:
+        with st.expander(f"📋 {item}", expanded=True):
+            df_input = st.session_state.data_store[item]
 
-if all_records:
-    final_export_df = pd.concat(all_records, ignore_index=True)
-    csv = final_export_df.to_csv(index=False).encode("utf-8")
+            edited_df = st.data_editor(
+                df_input,
+                num_rows="dynamic",
+                use_container_width=True,
+                key=f"editor_{item}",
+                column_config={
+                    "No": st.column_config.NumberColumn(
+                        min_value=1, step=1, default=1
+                    ),
+                    "L (ft)": st.column_config.NumberColumn(
+                        min_value=0.0, format="%.2f"
+                    ),
+                    "B (ft)": st.column_config.NumberColumn(
+                        min_value=0.0, format="%.2f"
+                    ),
+                    "H (ft)": st.column_config.NumberColumn(
+                        min_value=0.0,
+                        format="%.2f",
+                        help="Sqft အတွက်ဖြစ်ပါက 1 သို့မဟုတ် 0 ထားပါ",
+                    ),
+                    "Deduction": st.column_config.NumberColumn(
+                        min_value=0.0, format="%.2f"
+                    ),
+                },
+            )
 
+            if not edited_df.empty:
+                edited_df["Content"] = edited_df.apply(
+                    calculate_content, axis=1
+                )
+                st.session_state.data_store[item] = edited_df
+
+                total_qty = edited_df["Content"].sum()
+                unit = "Sqft" if "Sqft" in item else "Cuft"
+                st.caption(
+                    f"**{item} - Total:** `{total_qty:,.2f} {unit}`"
+                )
+
+                temp_df = edited_df.copy()
+                temp_df.insert(0, "Item Description", item)
+                summary_data.append(temp_df)
+
+else:
+    tabs = st.tabs(items_list)
+    for idx, item in enumerate(items_list):
+        with tabs[idx]:
+            st.subheader(item)
+            df_input = st.session_state.data_store[item]
+
+            edited_df = st.data_editor(
+                df_input,
+                num_rows="dynamic",
+                use_container_width=True,
+                key=f"tab_editor_{item}",
+                column_config={
+                    "No": st.column_config.NumberColumn(
+                        min_value=1, step=1, default=1
+                    ),
+                    "L (ft)": st.column_config.NumberColumn(
+                        min_value=0.0, format="%.2f"
+                    ),
+                    "B (ft)": st.column_config.NumberColumn(
+                        min_value=0.0, format="%.2f"
+                    ),
+                    "H (ft)": st.column_config.NumberColumn(
+                        min_value=0.0, format="%.2f"
+                    ),
+                    "Deduction": st.column_config.NumberColumn(
+                        min_value=0.0, format="%.2f"
+                    ),
+                },
+            )
+
+            if not edited_df.empty:
+                edited_df["Content"] = edited_df.apply(
+                    calculate_content, axis=1
+                )
+                st.session_state.data_store[item] = edited_df
+
+                total_qty = edited_df["Content"].sum()
+                unit = "Sqft" if "Sqft" in item else "Cuft"
+                st.caption(
+                    f"**{item} - Total:** `{total_qty:,.2f} {unit}`"
+                )
+
+                temp_df = edited_df.copy()
+                temp_df.insert(0, "Item Description", item)
+                summary_data.append(temp_df)
+
+# Export Summary Section
+st.divider()
+st.subheader("📊 Grand Total Summary & Export")
+
+if summary_data:
+    full_sheet_df = pd.concat(summary_data, ignore_index=True)
+
+    # Clean display
+    st.dataframe(full_sheet_df, use_container_width=True)
+
+    csv = full_sheet_df.to_csv(index=False).encode("utf-8")
     st.download_button(
-        label="📄 Export to CSV (Excel File)",
+        label="📄 Download Complete Measurement Sheet (CSV)",
         data=csv,
-        file_name=f"{project_name}_Measurement_Sheet.csv",
+        file_name=f"{project_name}_Full_Measurement_Sheet.csv",
         mime="text/csv",
     )
